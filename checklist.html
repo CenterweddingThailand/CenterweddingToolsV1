@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Planning Checklist | CW Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --pink: #D81B7A; --pink-light: #fde8f3; --pink-dark: #aa1060;
+      --navy: #1C2B3A; --navy2: #2e4057;
+      --text: #1a1a1a; --mid: #6b7280; --light: #9ca3af;
+      --bg: #fdf5f9; --white: #fff; --border: #f0d6e8;
+      --green: #15803d; --green-bg: #dcfce7;
+      --yellow: #d97706; --yellow-bg: #fef3c7;
+    }
+    body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 430px; margin: 0 auto; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .topbar { background: var(--white); padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+    .topbar-logo img { height: 32px; width: auto; display: block; }
+    .topbar-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+    .topbar-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--navy); }
+    .topbar-reset { font-size: 12px; color: var(--light); cursor: pointer; padding: 4px 8px; border-radius: 8px; border: 1px solid var(--border); background: none; font-family: 'Sarabun', sans-serif; }
+    .topbar-reset:hover { color: var(--pink); border-color: var(--pink); }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: 16px; padding: 20px; margin: 14px 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,.05); }
+    .card-title { font-size: 13px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+
+    /* ── Overall Progress ── */
+    .progress-hero { display: flex; align-items: center; gap: 20px; }
+    .circle-wrap { position: relative; width: 100px; height: 100px; flex-shrink: 0; }
+    .circle-wrap svg { transform: rotate(-90deg); }
+    .circle-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+    .circle-fill { fill: none; stroke: var(--pink); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset .6s ease; }
+    .circle-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .circle-pct { font-size: 26px; font-weight: 800; color: var(--pink); line-height: 1; }
+    .circle-label { font-size: 10px; color: var(--mid); margin-top: 2px; }
+    .progress-info { flex: 1; }
+    .progress-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .progress-info p { font-size: 13px; color: var(--mid); margin-bottom: 12px; }
+    .overall-bar { height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .overall-fill { height: 100%; background: var(--pink); border-radius: 999px; transition: width .5s ease; }
+
+    /* ── Next Tasks ── */
+    .next-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .next-header h3 { font-size: 14px; font-weight: 700; }
+    .view-all { font-size: 12px; color: var(--pink); font-weight: 600; cursor: pointer; }
+    .next-task { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--bg); cursor: pointer; }
+    .next-task:last-child { border-bottom: none; padding-bottom: 0; }
+    .next-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .dot-high { background: var(--pink); }
+    .dot-med  { background: var(--yellow); }
+    .dot-low  { background: var(--light); }
+    .next-body { flex: 1; }
+    .next-name { font-size: 13px; font-weight: 600; }
+    .next-cat  { font-size: 11px; color: var(--light); margin-top: 1px; }
+    .next-check { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .next-check.done { background: var(--pink); border-color: var(--pink); }
+    .next-check.done::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+
+    /* ── Categories ── */
+    .cat-section { margin-bottom: 0; }
+    .cat-header { display: flex; align-items: center; gap: 10px; padding: 12px 0; cursor: pointer; border-bottom: 1px solid var(--bg); user-select: none; }
+    .cat-icon { font-size: 20px; width: 36px; height: 36px; background: var(--bg); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cat-info { flex: 1; }
+    .cat-name { font-size: 14px; font-weight: 700; }
+    .cat-mini-bar { height: 4px; background: var(--border); border-radius: 999px; overflow: hidden; margin-top: 5px; width: 100%; }
+    .cat-mini-fill { height: 100%; background: var(--pink); border-radius: 999px; transition: width .4s ease; }
+    .cat-count { font-size: 12px; font-weight: 700; color: var(--mid); flex-shrink: 0; }
+    .cat-arrow { font-size: 12px; color: var(--light); transition: transform .2s; flex-shrink: 0; }
+    .cat-arrow.open { transform: rotate(180deg); }
+
+    .task-list { overflow: hidden; max-height: 0; transition: max-height .3s ease; }
+    .task-list.open { max-height: 2000px; }
+    .task-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0 11px 46px; border-bottom: 1px solid var(--bg); cursor: pointer; }
+    .task-item:last-child { border-bottom: none; }
+    .task-cb { width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all .15s; margin-top: 1px; }
+    .task-cb.done { background: var(--pink); border-color: var(--pink); }
+    .task-cb.done::after { content: '✓'; color: #fff; font-size: 13px; font-weight: 700; }
+    .task-text { flex: 1; }
+    .task-name { font-size: 13px; font-weight: 500; transition: color .15s; }
+    .task-name.done { color: var(--light); text-decoration: line-through; }
+    .task-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; margin-top: 4px; }
+    .badge-high { background: var(--pink-light); color: var(--pink); }
+    .badge-med  { background: var(--yellow-bg); color: var(--yellow); }
+
+    /* ── CTA ── */
+    .cta-wrap { padding: 14px 16px 28px; }
+    .btn-cta { width: 100%; padding: 14px; background: var(--pink); color: #fff; border: none; border-radius: 14px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 14px rgba(216,27,122,.25); transition: background .2s; }
+    .btn-cta:hover { background: var(--pink-dark); }
+
+    /* ── Bottom nav ── */
+    .bottomnav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--white); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 16px; z-index: 20; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--light); cursor: pointer; flex: 1; padding: 4px 0; }
+    .nav-item.on { color: var(--pink); }
+    .ni { font-size: 20px; }
+    .spacer { height: 80px; }
+
+    /* ── Coming Soon ── */
+    .cs-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; align-items: flex-end; justify-content: center; }
+    .cs-overlay.on { display: flex; }
+    .cs-sheet { background: var(--white); border-radius: 24px 24px 0 0; padding: 32px 24px 44px; width: 100%; max-width: 430px; text-align: center; animation: up .3s ease; }
+    @keyframes up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .cs-logo { height: 44px; margin: 0 auto 16px; display: block; }
+    .cs-icon { font-size: 40px; margin-bottom: 10px; }
+    .cs-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .cs-sub { font-size: 13px; color: var(--mid); line-height: 1.6; margin-bottom: 20px; }
+    .cs-pill { display: inline-block; background: var(--pink-light); color: var(--pink); font-size: 12px; font-weight: 700; padding: 5px 18px; border-radius: 999px; margin-bottom: 18px; }
+    .cs-close { width: 100%; padding: 13px; background: var(--pink); color: #fff; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+    /* Confetti animation for completing all tasks */
+    @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.08)} 100%{transform:scale(1)} }
+    .celebrate { animation: pop .4s ease; }
+
+    /* ── Add Task sheet ── */
+    .add-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 70; align-items: flex-end; justify-content: center; }
+    .add-overlay.on { display: flex; }
+    .add-sheet { background: var(--white); border-radius: 24px 24px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 430px; animation: up .28s ease; }
+    .add-sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 999px; margin: 0 auto 20px; }
+    .add-sheet-title { font-size: 17px; font-weight: 800; color: var(--navy); margin-bottom: 18px; }
+    .add-field { margin-bottom: 14px; }
+    .add-label { font-size: 12px; font-weight: 700; color: var(--mid); margin-bottom: 6px; display: block; }
+    .add-input { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; transition: border-color .15s; }
+    .add-input:focus { border-color: var(--pink); background: var(--white); }
+    .add-select { width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 14px; color: var(--text); background: var(--bg); outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239ca3af' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; cursor: pointer; }
+    .add-select:focus { border-color: var(--pink); background-color: var(--white); }
+    .add-row { display: flex; gap: 10px; }
+    .add-row .add-field { flex: 1; }
+    .add-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .btn-add-cancel { flex: 1; padding: 13px; background: var(--bg); color: var(--mid); border: 1.5px solid var(--border); border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-add-confirm { flex: 2; padding: 13px; background: var(--pink); color: #fff; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; transition: background .15s; }
+    .btn-add-confirm:hover { background: var(--pink-dark); }
+    .btn-add-confirm:disabled { background: var(--border); color: var(--light); cursor: not-allowed; }
+
+    /* ── Custom task delete ── */
+    .task-del { width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--border); background: none; color: var(--light); font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all .15s; margin-top: 1px; }
+    .task-del:hover { border-color: #ef4444; color: #ef4444; background: #fef2f2; }
+
+    /* ── Add btn in card header ── */
+    .cat-header-row { display: flex; align-items: center; margin-bottom: 14px; }
+    .cat-header-row .card-title { margin-bottom: 0; flex: 1; }
+    .btn-add-task { display: flex; align-items: center; gap: 5px; background: var(--pink-light); color: var(--pink); border: none; border-radius: 10px; padding: 6px 12px; font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 700; cursor: pointer; transition: background .15s; }
+    .btn-add-task:hover { background: #f9c8e5; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="topbar-logo"><img src="./logo.png" alt="Centerwedding" /></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title">Planning Checklist</div>
+    <button class="topbar-reset" onclick="confirmReset()">รีเซ็ต</button>
+  </div>
+
+  <!-- Overall Progress -->
+  <div class="card">
+    <div class="progress-hero">
+      <div class="circle-wrap" id="circleWrap">
+        <svg width="100" height="100" viewBox="0 0 100 100">
+          <circle class="circle-bg" cx="50" cy="50" r="42" />
+          <circle class="circle-fill" id="circleFill" cx="50" cy="50" r="42"
+            stroke-dasharray="264" stroke-dashoffset="264" />
+        </svg>
+        <div class="circle-text">
+          <div class="circle-pct" id="pctText">0%</div>
+          <div class="circle-label">เสร็จแล้ว</div>
+        </div>
+      </div>
+      <div class="progress-info">
+        <h3>Overall progress</h3>
+        <p id="progressSub">0 / 0 งานเสร็จแล้ว</p>
+        <div class="overall-bar">
+          <div class="overall-fill" id="overallFill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Tasks -->
+  <div class="card">
+    <div class="next-header">
+      <h3>งานที่ต้องทำต่อไป</h3>
+      <span class="view-all" onclick="expandAll()">ดูทั้งหมด</span>
+    </div>
+    <div id="nextTasksContainer"></div>
+  </div>
+
+  <!-- Categories -->
+  <div class="card" style="padding: 20px 20px 4px">
+    <div class="cat-header-row">
+      <div class="card-title">หมวดหมู่</div>
+      <button class="btn-add-task" onclick="openAddSheet()">＋ เพิ่มงาน</button>
+    </div>
+    <div id="categoriesContainer"></div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-wrap">
+    <button class="btn-cta" onclick="showCS('Support','ติดต่อทีม Centerwedding เพื่อขอคำแนะนำเพิ่มเติม')">
+      💬 ขอความช่วยเหลือจาก CW
+    </button>
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Bottom nav -->
+  <div class="bottomnav">
+    <div class="nav-item" onclick="showCS('Home','จัดการงานอีเวนต์ทั้งหมดในที่เดียว')"><div class="ni">🏠</div><span>Home</span></div>
+    <div class="nav-item" onclick="showCS('Guest List','จัดการรายชื่อแขกและส่ง e-Invite ออนไลน์')"><div class="ni">👥</div><span>Guests</span></div>
+    <div class="nav-item on"><div class="ni">✅</div><span>Checklist</span></div>
+    <div class="nav-item" onclick="location.href='budget-advisor.html'"><div class="ni">💰</div><span>Budget</span></div>
+    <div class="nav-item" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')"><div class="ni">📍</div><span>Venues</span></div>
+  </div>
+</div>
+
+<!-- Add Task sheet -->
+<div class="add-overlay" id="addOverlay" onclick="closeAddClick(event)">
+  <div class="add-sheet">
+    <div class="add-sheet-handle"></div>
+    <div class="add-sheet-title">➕ เพิ่มงานของคุณเอง</div>
+
+    <div class="add-field">
+      <label class="add-label" for="addTaskName">ชื่องาน</label>
+      <input class="add-input" id="addTaskName" type="text" placeholder="เช่น นัดซ้อมพิธีแต่งงาน..." maxlength="60" oninput="validateAddForm()" />
+    </div>
+
+    <div class="add-field">
+      <label class="add-label" for="addTaskCat">หมวดหมู่</label>
+      <select class="add-select" id="addTaskCat">
+        <option value="">— เลือกหมวดหมู่ —</option>
+        <option value="venue">🏛️ สถานที่จัดงาน</option>
+        <option value="food">🍽️ อาหารและเครื่องดื่ม</option>
+        <option value="deco">🌸 ดอกไม้และตกแต่งสถานที่</option>
+        <option value="photo">📷 ช่างภาพและวิดีโอ</option>
+        <option value="entertain">🎵 ดนตรีและ MC</option>
+        <option value="transport">🚗 การเดินทาง</option>
+        <option value="dress">👗 ชุดและแต่งหน้า</option>
+        <option value="invite">💌 การ์ดเชิญและของชำร่วย</option>
+      </select>
+    </div>
+
+    <div class="add-actions">
+      <button class="btn-add-cancel" onclick="closeAddSheet()">ยกเลิก</button>
+      <button class="btn-add-confirm" id="addConfirmBtn" disabled onclick="addCustomTask()">＋ เพิ่มงาน</button>
+    </div>
+  </div>
+</div>
+
+<!-- Coming Soon sheet -->
+<div class="cs-overlay" id="csOverlay" onclick="closeCSClick(event)">
+  <div class="cs-sheet">
+    <img src="./logo.png" class="cs-logo" alt="Centerwedding" />
+    <div class="cs-icon">🚀</div>
+    <div class="cs-title" id="csTitle">Coming Soon</div>
+    <div class="cs-sub" id="csSub"></div>
+    <div class="cs-pill">เร็วๆ นี้</div>
+    <button class="cs-close" onclick="document.getElementById('csOverlay').classList.remove('on')">กลับไปที่ Checklist</button>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA — รายการ tasks งานแต่งงาน
+// ─────────────────────────────────────────────
+const CATEGORIES = [
+  {
+    id: 'venue', icon: '🏛️', name: 'สถานที่จัดงาน',
+    tasks: [
+      { id: 'v1', name: 'กำหนดวันและเวลาของงาน', priority: 'high' },
+      { id: 'v2', name: 'สำรวจสถานที่อย่างน้อย 3 แห่ง', priority: 'high' },
+      { id: 'v3', name: 'ยืนยัน venue package และเซ็นสัญญา', priority: 'high' },
+      { id: 'v4', name: 'วางแผนผังห้องจัดเลี้ยง', priority: 'med' },
+      { id: 'v5', name: 'ตรวจสอบ parking และการเดินทาง', priority: 'med' },
+    ]
+  },
+  {
+    id: 'food', icon: '🍽️', name: 'อาหารและเครื่องดื่ม',
+    tasks: [
+      { id: 'f1', name: 'เลือกเมนูอาหารและเครื่องดื่ม', priority: 'high' },
+      { id: 'f2', name: 'นัด food tasting กับ venue', priority: 'high' },
+      { id: 'f3', name: 'ยืนยันจำนวนแขกกับทีมครัว', priority: 'high' },
+      { id: 'f4', name: 'เลือกเค้กแต่งงาน', priority: 'med' },
+      { id: 'f5', name: 'ตัดสินใจเรื่อง open bar', priority: 'med' },
+      { id: 'f6', name: 'แจ้งอาหารพิเศษ (เจ / ฮาลาล)', priority: 'med' },
+    ]
+  },
+  {
+    id: 'deco', icon: '🌸', name: 'ดอกไม้และตกแต่งสถานที่',
+    tasks: [
+      { id: 'd1', name: 'เลือกธีมและชุดสีของงาน', priority: 'high' },
+      { id: 'd2', name: 'เลือกดอกไม้และการตกแต่ง', priority: 'high' },
+      { id: 'd3', name: 'ออกแบบ backdrop และ photo booth', priority: 'med' },
+      { id: 'd4', name: 'ยืนยันการตกแต่งโต๊ะแขก', priority: 'med' },
+    ]
+  },
+  {
+    id: 'photo', icon: '📷', name: 'ช่างภาพและวิดีโอ',
+    tasks: [
+      { id: 'p1', name: 'เลือกและจองช่างภาพ', priority: 'high' },
+      { id: 'p2', name: 'เลือกและจองช่างวิดีโอ', priority: 'high' },
+      { id: 'p3', name: 'นัด pre-wedding photoshoot', priority: 'med' },
+      { id: 'p4', name: 'ส่ง mood board ให้ช่างภาพ', priority: 'med' },
+      { id: 'p5', name: 'ยืนยัน shot list วันงาน', priority: 'med' },
+    ]
+  },
+  {
+    id: 'entertain', icon: '🎵', name: 'ดนตรีและ MC',
+    tasks: [
+      { id: 'e1', name: 'เลือกวงดนตรีหรือ DJ', priority: 'high' },
+      { id: 'e2', name: 'เลือกพิธีกร (MC)', priority: 'high' },
+      { id: 'e3', name: 'วางโปรแกรมงานทั้งหมด', priority: 'high' },
+      { id: 'e4', name: 'ซ้อมพิธีการก่อนวันงาน', priority: 'med' },
+    ]
+  },
+  {
+    id: 'transport', icon: '🚗', name: 'การเดินทาง',
+    tasks: [
+      { id: 't1', name: 'จัดรถเจ้าบ่าวเจ้าสาว', priority: 'high' },
+      { id: 't2', name: 'จัดรถรับส่งแขก VIP', priority: 'med' },
+      { id: 't3', name: 'แจ้ง parking และแผนที่ให้แขก', priority: 'med' },
+    ]
+  },
+  {
+    id: 'dress', icon: '👗', name: 'ชุดและแต่งหน้า',
+    tasks: [
+      { id: 'dr1', name: 'เลือกและจองชุดเจ้าสาว', priority: 'high' },
+      { id: 'dr2', name: 'เลือกและจองสูทเจ้าบ่าว', priority: 'high' },
+      { id: 'dr3', name: 'จองช่างแต่งหน้าและทำผม', priority: 'high' },
+      { id: 'dr4', name: 'นัด fitting ชุดก่อนวันงาน', priority: 'med' },
+    ]
+  },
+  {
+    id: 'invite', icon: '💌', name: 'การ์ดเชิญและของชำร่วย',
+    tasks: [
+      { id: 'i1', name: 'ออกแบบการ์ดเชิญ', priority: 'high' },
+      { id: 'i2', name: 'ส่งการ์ดเชิญล่วงหน้าอย่างน้อย 4 สัปดาห์', priority: 'high' },
+      { id: 'i3', name: 'เลือกของชำร่วย', priority: 'med' },
+      { id: 'i4', name: 'จัดเตรียมของชำร่วยให้ครบ', priority: 'med' },
+    ]
+  },
+];
+
+// ─────────────────────────────────────────────
+// State (localStorage)
+// ─────────────────────────────────────────────
+let checked = {};
+let customTasks = [];
+
+function loadState() {
+  try { checked = JSON.parse(localStorage.getItem('cw_checklist') || '{}'); }
+  catch { checked = {}; }
+  try { customTasks = JSON.parse(localStorage.getItem('cw_custom_tasks') || '[]'); }
+  catch { customTasks = []; }
+}
+function saveState() {
+  localStorage.setItem('cw_checklist', JSON.stringify(checked));
+}
+function saveCustomTasks() {
+  localStorage.setItem('cw_custom_tasks', JSON.stringify(customTasks));
+}
+
+// Merge custom tasks into their categories for rendering
+function getAllCategories() {
+  return CATEGORIES.map(cat => ({
+    ...cat,
+    tasks: [
+      ...cat.tasks,
+      ...customTasks.filter(t => t.catId === cat.id)
+    ]
+  }));
+}
+
+// ─────────────────────────────────────────────
+// Toggle task
+// ─────────────────────────────────────────────
+function toggle(id) {
+  checked[id] = !checked[id];
+  saveState();
+  renderAll();
+}
+
+// ─────────────────────────────────────────────
+// Stats
+// ─────────────────────────────────────────────
+function getStats() {
+  let total = 0, done = 0;
+  getAllCategories().forEach(c => c.tasks.forEach(t => {
+    total++;
+    if (checked[t.id]) done++;
+  }));
+  return { total, done, pct: total ? Math.round(done / total * 100) : 0 };
+}
+
+function getCatStats(cat) {
+  const total = cat.tasks.length;
+  const done  = cat.tasks.filter(t => checked[t.id]).length;
+  return { total, done, pct: total ? Math.round(done / total * 100) : 0 };
+}
+
+// ─────────────────────────────────────────────
+// Render
+// ─────────────────────────────────────────────
+function renderAll() {
+  renderProgress();
+  renderNextTasks();
+  renderCategories();
+}
+
+function renderProgress() {
+  const { total, done, pct } = getStats();
+  const circumference = 264;
+  const offset = circumference - (pct / 100) * circumference;
+  document.getElementById('circleFill').style.strokeDashoffset = offset;
+  document.getElementById('pctText').textContent = pct + '%';
+  document.getElementById('progressSub').textContent = done + ' / ' + total + ' งานเสร็จแล้ว';
+  document.getElementById('overallFill').style.width = pct + '%';
+  if (pct === 100) document.getElementById('circleWrap').classList.add('celebrate');
+  else document.getElementById('circleWrap').classList.remove('celebrate');
+}
+
+function renderNextTasks() {
+  const pending = [];
+  getAllCategories().forEach(cat => {
+    cat.tasks.forEach(t => {
+      if (!checked[t.id]) pending.push({ ...t, catName: cat.name });
+    });
+  });
+  const next3 = pending.slice(0, 3);
+  const container = document.getElementById('nextTasksContainer');
+  if (next3.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:14px;color:var(--mid)">🎉 ทำครบทุกงานแล้ว!</div>';
+    return;
+  }
+  container.innerHTML = next3.map(t => `
+    <div class="next-task" onclick="toggle('${t.id}')">
+      <div class="next-dot ${t.priority === 'high' ? 'dot-high' : t.priority === 'med' ? 'dot-med' : 'dot-low'}"></div>
+      <div class="next-body">
+        <div class="next-name">${t.name}</div>
+        <div class="next-cat">${t.catName}</div>
+      </div>
+      <div class="next-check ${checked[t.id] ? 'done' : ''}"></div>
+    </div>
+  `).join('');
+}
+
+function renderCategories() {
+  const container = document.getElementById('categoriesContainer');
+  container.innerHTML = getAllCategories().map(cat => {
+    const { total, done, pct } = getCatStats(cat);
+    const isOpen = CATEGORIES.find(c => c.id === cat.id)?._open || false;
+    const tasksHTML = cat.tasks.map(t => {
+      const isCustom = !!t.catId;
+      return `
+        <div class="task-item" onclick="toggle('${t.id}')">
+          <div class="task-cb ${checked[t.id] ? 'done' : ''}"></div>
+          <div class="task-text">
+            <div class="task-name ${checked[t.id] ? 'done' : ''}">${t.name}</div>
+            ${t.priority === 'high' ? '<span class="task-badge badge-high">สำคัญ</span>' : t.priority === 'med' ? '<span class="task-badge badge-med">ควรทำ</span>' : ''}
+            ${isCustom ? '<span class="task-badge" style="background:#f0f4ff;color:#4f6ef7">ของฉัน</span>' : ''}
+          </div>
+          ${isCustom ? `<button class="task-del" onclick="deleteCustomTask(event,'${t.id}')">✕</button>` : ''}
+        </div>
+      `;
+    }).join('');
+
+    return `
+      <div class="cat-section">
+        <div class="cat-header" onclick="toggleCat('${cat.id}')">
+          <div class="cat-icon">${cat.icon}</div>
+          <div class="cat-info">
+            <div class="cat-name">${cat.name}</div>
+            <div class="cat-mini-bar"><div class="cat-mini-fill" style="width:${pct}%"></div></div>
+          </div>
+          <div class="cat-count">${done}/${total}</div>
+          <div class="cat-arrow ${isOpen ? 'open' : ''}">▾</div>
+        </div>
+        <div class="task-list ${isOpen ? 'open' : ''}" id="tl_${cat.id}">
+          ${tasksHTML}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleCat(id) {
+  const cat = CATEGORIES.find(c => c.id === id);
+  if (!cat) return;
+  cat._open = !cat._open;
+  renderCategories();
+}
+
+function expandAll() {
+  CATEGORIES.forEach(c => c._open = true);
+  renderCategories();
+}
+
+function confirmReset() {
+  if (confirm('รีเซ็ต checklist ทั้งหมดหรือไม่?')) {
+    checked = {};
+    saveState();
+    renderAll();
+  }
+}
+
+// ─────────────────────────────────────────────
+// Custom Task Management
+// ─────────────────────────────────────────────
+function openAddSheet() {
+  document.getElementById('addTaskName').value = '';
+  document.getElementById('addTaskCat').value = '';
+  document.getElementById('addConfirmBtn').disabled = true;
+  document.getElementById('addOverlay').classList.add('on');
+  setTimeout(() => document.getElementById('addTaskName').focus(), 300);
+}
+
+function closeAddSheet() {
+  document.getElementById('addOverlay').classList.remove('on');
+}
+
+function closeAddClick(e) {
+  if (e.target === document.getElementById('addOverlay')) closeAddSheet();
+}
+
+function validateAddForm() {
+  const name = document.getElementById('addTaskName').value.trim();
+  const cat  = document.getElementById('addTaskCat').value;
+  document.getElementById('addConfirmBtn').disabled = !(name && cat);
+}
+
+function addCustomTask() {
+  const name = document.getElementById('addTaskName').value.trim();
+  const catId = document.getElementById('addTaskCat').value;
+  if (!name || !catId) return;
+
+  const id = 'custom_' + Date.now();
+  customTasks.push({ id, name, catId, priority: 'med' });
+  saveCustomTasks();
+
+  // open that category so user can see the new task
+  const cat = CATEGORIES.find(c => c.id === catId);
+  if (cat) cat._open = true;
+
+  closeAddSheet();
+  renderAll();
+}
+
+function deleteCustomTask(e, id) {
+  e.stopPropagation();
+  customTasks = customTasks.filter(t => t.id !== id);
+  delete checked[id];
+  saveCustomTasks();
+  saveState();
+  renderAll();
+}
+
+// ─────────────────────────────────────────────
+// Coming Soon
+// ─────────────────────────────────────────────
+function showCS(name, desc) {
+  document.getElementById('csTitle').textContent = name;
+  document.getElementById('csSub').textContent = desc;
+  document.getElementById('csOverlay').classList.add('on');
+}
+function closeCSClick(e) {
+  if (e.target === document.getElementById('csOverlay')) {
+    document.getElementById('csOverlay').classList.remove('on');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+loadState();
+renderAll();
+document.getElementById('addTaskCat').addEventListener('change', validateAddForm);
+</script>
+</body>
+</html>

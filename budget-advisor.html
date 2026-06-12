@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Budget Advisor | CW Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --orange: #D81B7A; --orange-light: #fde8f3; --orange-dark: #aa1060;
+      --navy: #1C2B3A; --navy2: #2e4057;
+      --text: #1a1a1a; --mid: #6b7280; --light: #9ca3af;
+      --bg: #fdf5f9; --white: #fff; --border: #f0d6e8;
+      --green: #15803d; --green-bg: #dcfce7;
+      --red: #dc2626; --red-bg: #fee2e2;
+    }
+    body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); }
+    .wrap { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); }
+
+    /* ── Top bar ── */
+    .topbar { background: var(--white); padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+    .topbar-logo img { height: 32px; width: auto; display: block; }
+    .topbar-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
+    .topbar-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--navy); }
+    .topbar-badge { background: var(--orange-light); color: var(--orange); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; }
+
+    /* ── Coming Soon overlay ── */
+    .cs-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; align-items: flex-end; justify-content: center; }
+    .cs-overlay.on { display: flex; }
+    .cs-sheet { background: var(--white); border-radius: 24px 24px 0 0; padding: 32px 24px 44px; width: 100%; max-width: 430px; text-align: center; animation: up .3s ease; }
+    .cs-logo { height: 48px; width: auto; margin: 0 auto 20px; display: block; }
+    .cs-icon { font-size: 42px; margin-bottom: 12px; }
+    .cs-title { font-size: 20px; font-weight: 800; color: var(--navy); margin-bottom: 6px; }
+    .cs-sub { font-size: 14px; color: var(--mid); line-height: 1.6; margin-bottom: 24px; }
+    .cs-pill { display: inline-block; background: var(--orange-light); color: var(--orange); font-size: 13px; font-weight: 700; padding: 6px 20px; border-radius: 999px; margin-bottom: 20px; }
+    .cs-close { width: 100%; padding: 13px; background: var(--orange); color: #fff; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border-radius: 16px; padding: 20px; margin: 14px 16px 0; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .card-title { font-size: 13px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 14px; }
+
+    /* ── Inputs ── */
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: var(--mid); margin-bottom: 5px; }
+    .sel-wrap { position: relative; }
+    .sel-wrap::after { content: '▾'; position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 11px; color: var(--light); pointer-events: none; }
+    .field select, .field input[type="number"] {
+      width: 100%; padding: 10px 30px 10px 11px; border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: 'Sarabun', sans-serif; font-size: 14px; color: var(--text); background: var(--bg);
+      outline: none; appearance: none; -webkit-appearance: none; transition: border-color .2s;
+    }
+    .field select:focus, .field input[type="number"]:focus { border-color: var(--orange); background: var(--white); }
+    .num-wrap { position: relative; }
+    .num-wrap .unit { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--light); pointer-events: none; }
+    .num-wrap input { padding-right: 36px; }
+
+    /* Tier buttons */
+    .tier-btns { display: flex; gap: 8px; margin-bottom: 14px; }
+    .tier-btn {
+      flex: 1; padding: 9px 6px; border: 1.5px solid var(--border); border-radius: 10px;
+      background: var(--bg); font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
+      color: var(--mid); cursor: pointer; text-align: center; transition: all .15s;
+    }
+    .tier-btn.active { border-color: var(--orange); background: var(--orange); color: var(--white); }
+    .tier-btn:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
+
+    /* ── Calc button ── */
+    .btn-calc {
+      width: 100%; padding: 13px; background: var(--orange); color: var(--white); border: none; border-radius: 12px;
+      font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background .2s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-calc:hover { background: var(--orange-dark); }
+    .btn-calc:active { transform: scale(.98); }
+
+    /* ── Loading ── */
+    .loading { display: none; align-items: center; justify-content: center; gap: 10px; padding: 28px; color: var(--mid); font-size: 14px; }
+    .loading.on { display: flex; }
+    .spin { width: 20px; height: 20px; border: 2.5px solid var(--border); border-top-color: var(--orange); border-radius: 50%; animation: spin .7s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results ── */
+    #results { display: none; }
+    #results.on { display: block; }
+
+    /* Hero budget */
+    .hero-card { text-align: center; }
+    .hero-label { font-size: 12px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+    .hero-amt { font-size: 40px; font-weight: 700; color: var(--orange); letter-spacing: -1.5px; line-height: 1.1; }
+    .hero-amt em { font-size: 20px; font-style: normal; margin-right: 2px; }
+    .hero-range { font-size: 13px; color: var(--mid); margin-top: 6px; }
+    .tags { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .tag { font-size: 12px; color: var(--mid); background: var(--bg); padding: 4px 10px; border-radius: 999px; display: flex; align-items: center; gap: 4px; }
+
+    /* Split bars */
+    .split-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .split-row:last-child { margin-bottom: 0; }
+    .split-name { font-size: 13px; color: var(--text); width: 115px; flex-shrink: 0; }
+    .split-bar { flex: 1; height: 8px; background: var(--border); border-radius: 999px; overflow: hidden; }
+    .split-fill { height: 100%; border-radius: 999px; transition: width .6s ease; }
+    .split-pct { font-size: 11px; font-weight: 700; color: var(--mid); width: 28px; text-align: right; flex-shrink: 0; }
+    .split-amt { font-size: 13px; font-weight: 700; color: var(--text); width: 84px; text-align: right; flex-shrink: 0; }
+
+    /* Venue card */
+    .venue-inner { display: flex; gap: 12px; }
+    .venue-thumb { width: 76px; height: 66px; border-radius: 10px; background: linear-gradient(135deg,#c9a96e,#7a5c4e); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 28px; }
+    .venue-info { flex: 1; }
+    .venue-name { font-size: 14px; font-weight: 700; margin-bottom: 1px; }
+    .venue-loc { font-size: 12px; color: var(--mid); margin-bottom: 6px; }
+    .venue-price-lbl { font-size: 11px; color: var(--light); }
+    .venue-price { font-size: 14px; font-weight: 700; }
+    .venue-cap { font-size: 11px; color: var(--light); margin-top: 2px; }
+    .venue-cta { font-size: 12px; color: var(--orange); font-weight: 600; margin-top: 12px; display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+    /* Tip */
+    .tip-box { background: var(--orange-light); border-radius: 12px; padding: 13px 15px; margin: 14px 16px 0; display: flex; gap: 10px; }
+    .tip-icon { font-size: 18px; flex-shrink: 0; }
+    .tip-text { font-size: 13px; color: var(--orange-dark); line-height: 1.65; }
+
+    /* Source note */
+    .source-note { font-size: 11px; color: var(--light); text-align: center; margin: 12px 16px 0; line-height: 1.6; }
+
+    /* CTA */
+    .cta-wrap { padding: 14px 16px 28px; }
+    .btn-cta {
+      width: 100%; padding: 15px; background: var(--orange); color: var(--white); border: none; border-radius: 14px;
+      font-family: 'Sarabun', sans-serif; font-size: 16px; font-weight: 700; cursor: pointer;
+      box-shadow: 0 4px 14px rgba(200,105,46,.3); transition: background .2s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-cta:hover { background: var(--orange-dark); }
+    .btn-cta:active { transform: scale(.98); }
+
+    /* Bottom nav */
+    .bottomnav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: var(--white); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 8px 0 16px; z-index: 20; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 10px; color: var(--light); cursor: pointer; flex: 1; padding: 4px 0; }
+    .nav-item.on { color: var(--orange); }
+    .nav-item .ni { font-size: 20px; }
+    .spacer { height: 80px; }
+
+    /* ── Modal ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 50; align-items: flex-end; justify-content: center; }
+    .overlay.on { display: flex; }
+    .modal { background: var(--white); border-radius: 20px 20px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 430px; animation: up .3s ease; }
+    @keyframes up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .modal p { font-size: 13px; color: var(--mid); margin-bottom: 18px; line-height: 1.6; }
+    .mfield { margin-bottom: 12px; }
+    .mfield label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 5px; }
+    .mfield input { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 10px; font-family: 'Sarabun', sans-serif; font-size: 14px; outline: none; transition: border-color .2s; }
+    .mfield input:focus { border-color: var(--orange); }
+    .mfield .hint { font-size: 11px; color: var(--light); margin-top: 4px; }
+    .btn-submit { width: 100%; padding: 13px; background: var(--orange); color: var(--white); border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 6px; transition: background .2s; }
+    .btn-submit:hover { background: var(--orange-dark); }
+    .btn-cancel { width: 100%; padding: 11px; background: none; border: none; font-family: 'Sarabun', sans-serif; font-size: 14px; color: var(--mid); cursor: pointer; margin-top: 6px; }
+    .success-view { text-align: center; padding: 10px 0 8px; }
+    .success-view .icon { font-size: 52px; margin-bottom: 14px; }
+    .success-view h3 { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
+    .success-view p { font-size: 14px; color: var(--mid); line-height: 1.6; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="topbar-logo"><img src="./logo.png" alt="Centerwedding" /></div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title">Budget Advisor</div>
+    <div class="topbar-badge">Beta</div>
+  </div>
+
+  <!-- Input card -->
+  <div class="card">
+    <div class="card-title">ข้อมูลงานของคุณ</div>
+    <div class="row2">
+      <div class="field">
+        <label>สถานที่จัดงาน</label>
+        <div class="sel-wrap">
+          <select id="location">
+            <option value="bangkok">กรุงเทพฯ</option>
+            <option value="pattaya">พัทยา</option>
+            <option value="chiangmai">เชียงใหม่</option>
+            <option value="phuket">ภูเก็ต</option>
+            <option value="khonkaen">ขอนแก่น</option>
+            <option value="hatyai">หาดใหญ่</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>ประเภทงาน</label>
+        <div class="sel-wrap">
+          <select id="eventType">
+            <option value="wedding">งานแต่งงาน</option>
+            <option value="corporate">Corporate Dinner</option>
+            <option value="seminar">สัมมนา</option>
+            <option value="birthday">Birthday / Party</option>
+            <option value="product">Product Launch</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>จำนวนแขก (คน)</label>
+        <div class="num-wrap">
+          <input type="number" id="guests" value="100" min="20" max="2000" step="10" />
+          <span class="unit">คน</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>ระดับงาน</label>
+        <div class="sel-wrap">
+          <select id="tierSelect">
+            <option value="standard">Standard</option>
+            <option value="premium" selected>Premium</option>
+            <option value="luxury">Luxury</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="tier-btns" id="tierBtns">
+      <button class="tier-btn" data-tier="standard" onclick="setTier('standard')">Standard</button>
+      <button class="tier-btn active" data-tier="premium" onclick="setTier('premium')">Premium</button>
+      <button class="tier-btn" data-tier="luxury" onclick="setTier('luxury')">Luxury</button>
+    </div>
+    <button class="btn-calc" onclick="calculate()">
+      <span>คำนวณงบประมาณ</span><span>→</span>
+    </button>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading" id="loading"><div class="spin"></div>กำลังคำนวณ...</div>
+
+  <!-- Results -->
+  <div id="results">
+
+    <!-- Hero -->
+    <div class="card hero-card">
+      <div class="hero-label">Estimated Event Budget</div>
+      <div class="hero-amt"><em>THB</em><span id="heroAmt">—</span></div>
+      <div class="hero-range" id="heroRange"></div>
+      <div class="tags" id="heroTags"></div>
+    </div>
+
+    <!-- Suggested split -->
+    <div class="card">
+      <div class="card-title">Suggested Split</div>
+      <div id="splitRows"></div>
+    </div>
+
+    <!-- Venue -->
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Venue estimate</span>
+        <span style="background:#fff3e6;color:var(--orange);font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;letter-spacing:.3px">ข้อมูลตัวอย่าง</span>
+      </div>
+      <div class="venue-inner">
+        <div class="venue-thumb">🏛️</div>
+        <div class="venue-info">
+          <div class="venue-name" id="vName">—</div>
+          <div class="venue-loc" id="vLoc">—</div>
+          <div class="venue-price-lbl">Estimated total</div>
+          <div class="venue-price" id="vPrice">—</div>
+          <div class="venue-cap" id="vCap">—</div>
+        </div>
+      </div>
+      <div class="venue-cta" onclick="openModal()">เปรียบเทียบ venue packages →</div>
+    </div>
+
+    <!-- Tip -->
+    <div class="tip-box">
+      <div class="tip-icon">💡</div>
+      <div class="tip-text" id="tipText"></div>
+    </div>
+
+
+    <!-- CTA -->
+    <div class="cta-wrap">
+      <button class="btn-cta" onclick="openModal()">📋 ขอใบเสนอราคา venue</button>
+    </div>
+
+  </div>
+
+  <div class="spacer"></div>
+
+  <!-- Bottom nav -->
+  <div class="bottomnav">
+    <div class="nav-item" onclick="showComingSoon('Home','จัดการงานอีเวนต์ทั้งหมดของคุณในที่เดียว')"><div class="ni">🏠</div><span>Home</span></div>
+    <div class="nav-item" onclick="showComingSoon('Guest List','จัดการรายชื่อแขกและส่ง e-Invite ออนไลน์')"><div class="ni">👥</div><span>Guests</span></div>
+    <div class="nav-item" onclick="location.href='checklist.html'"><div class="ni">✅</div><span>Checklist</span></div>
+    <div class="nav-item on"><div class="ni">💰</div><span>Budget</span></div>
+    <div class="nav-item" onclick="showComingSoon('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')"><div class="ni">📍</div><span>Venues</span></div>
+  </div>
+
+  <!-- Coming Soon sheet -->
+  <div class="cs-overlay" id="csOverlay" onclick="closeCS(event)">
+    <div class="cs-sheet">
+      <img src="./logo.png" alt="Centerwedding" class="cs-logo" />
+      <div class="cs-icon">🚀</div>
+      <div class="cs-title" id="csTitle">Coming Soon</div>
+      <div class="cs-sub" id="csSub">กำลังพัฒนาฟีเจอร์นี้อยู่ครับ</div>
+      <div class="cs-pill">เร็วๆ นี้</div>
+      <button class="cs-close" onclick="document.getElementById('csOverlay').classList.remove('on')">กลับไปที่ Budget Advisor</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Request Quotation -->
+<div class="overlay" id="overlay" onclick="overlayClick(event)">
+  <div class="modal">
+    <div id="formView">
+      <h3>ขอใบเสนอราคา</h3>
+      <p>ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ</p>
+      <div class="mfield">
+        <label>ชื่อ-นามสกุล *</label>
+        <input type="text" id="fName" placeholder="กรอกชื่อของคุณ" />
+      </div>
+      <div class="mfield">
+        <label>เบอร์โทรศัพท์ *</label>
+        <input type="tel" id="fPhone" placeholder="08X-XXX-XXXX" />
+        <div class="hint">ใช้ติดต่อกลับจากทีมงาน</div>
+      </div>
+      <div class="mfield">
+        <label>LINE ID (ถ้ามี)</label>
+        <input type="text" id="fLine" placeholder="@yourlineid" />
+      </div>
+      <button class="btn-submit" onclick="submitLead()">ส่งคำขอ →</button>
+      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+    </div>
+    <div id="successView" class="success-view" style="display:none">
+      <div class="icon">✅</div>
+      <h3>ส่งคำขอสำเร็จ!</h3>
+      <p>ทีม Centerwedding จะติดต่อกลับ<br/>ภายใน 1 วันทำการ<br/><br/>ขอบคุณที่ไว้วางใจเรา 💛</p>
+      <button class="btn-submit" onclick="closeModal()" style="margin-top:20px">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIG — แก้ไขหลัง deploy Apps Script
+// ─────────────────────────────────────────────
+const SHEET_URL = 'https://script.google.com/a/macros/centerwedding.com/s/AKfycbxfS_SzLL3b4nwOVNj9CQQuHw-ymKgFmJhyGm1i5kw9mRerQv_VbbA15F0RmD2vTx-t/exec';
+const LIFF_ID   = 'YOUR_LIFF_ID';         // วาง LIFF ID จาก LINE Developers
+
+// ─────────────────────────────────────────────
+// DATA — ราคาเฉลี่ยจากตลาด ณ ปี 2025-2026
+// Source: Centerwedding vendor database + market research
+// ─────────────────────────────────────────────
+const BASE = {
+  wedding:   { standard: 2200, premium: 3800, luxury: 6800 },
+  corporate: { standard: 1800, premium: 3200, luxury: 5500 },
+  seminar:   { standard: 1200, premium: 2000, luxury: 3500 },
+  birthday:  { standard: 1500, premium: 2600, luxury: 4500 },
+  product:   { standard: 1700, premium: 3000, luxury: 5000 },
+};
+const LOC_MULTI  = { bangkok:1.00, pattaya:0.90, chiangmai:0.82, phuket:1.12, khonkaen:0.75, hatyai:0.78 };
+const LOC_LABEL  = { bangkok:'กรุงเทพฯ', pattaya:'พัทยา', chiangmai:'เชียงใหม่', phuket:'ภูเก็ต', khonkaen:'ขอนแก่น', hatyai:'หาดใหญ่' };
+const TIER_MULTI = { standard:1.0, premium:1.0, luxury:1.0 };
+const TIER_RANGE = { standard:[0.85,1.15], premium:[0.88,1.18], luxury:[0.85,1.20] };
+
+const SPLITS = {
+  wedding:   [['Venue & F&B','#1C2B3A',45],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['ชุด & แต่งหน้า','#e8a87c',10],['พิธีมงคล','#c9a23a',10],['Other','#d1d5db',8]],
+  corporate: [['Venue & F&B','#1C2B3A',65],['Decoration','#4a6fa5',12],['Photo & Video','#D81B7A',8],['Entertainment','#e8a87c',7],['Other','#d1d5db',8]],
+  seminar:   [['Venue & AV','#1C2B3A',50],['F&B','#4a6fa5',20],['Materials','#D81B7A',12],['Speaker','#e8a87c',10],['Other','#d1d5db',8]],
+  birthday:  [['Venue & F&B','#1C2B3A',50],['Decoration','#4a6fa5',20],['Entertainment','#D81B7A',15],['Photo','#e8a87c',8],['Other','#d1d5db',7]],
+  product:   [['Venue & F&B','#1C2B3A',40],['Production','#4a6fa5',25],['PR & Media','#D81B7A',15],['Decoration','#e8a87c',12],['Other','#d1d5db',8]],
+};
+const TIPS = {
+  wedding:  'ควรตั้ง <strong>งบสำรอง 10–15%</strong> สำหรับค่าสินสอด ค่าฤกษ์มงคล service charge และค่าใช้จ่ายฉุกเฉิน',
+  corporate:'ควรบวก <strong>5–10% สำรอง</strong> สำหรับ service charge, corkage fee และ overtime ของทีมงาน',
+  seminar:  'จองห้องล่วงหน้า <strong>อย่างน้อย 6–8 สัปดาห์</strong> เพื่อให้ได้ห้องที่มี AV equipment ครบถ้วน',
+  birthday: 'กำหนด <strong>dress code</strong> และมีกิจกรรม interactive ช่วยสร้างประสบการณ์ที่จดจำได้',
+  product:  'งบ <strong>Production & Staging</strong> ส่งผลโดยตรงต่อคุณภาพสื่อและ media coverage หลังงาน',
+};
+const VENUES = {
+  bangkok:   [{n:'The Grand Ballroom',l:'สุขุมวิท กรุงเทพฯ',c:'80–250 คน',mn:280000,mx:420000},{n:'Riverside Event Hall',l:'เจริญนคร กรุงเทพฯ',c:'120–300 คน',mn:200000,mx:350000},{n:'Crystal Hall Bangkok',l:'รัชดา กรุงเทพฯ',c:'200–500 คน',mn:380000,mx:600000}],
+  pattaya:   [{n:'Royal Cliff Ballroom',l:'พัทยาใต้',c:'100–400 คน',mn:220000,mx:380000},{n:'Dusit Thani Pattaya',l:'พัทยาเหนือ',c:'80–250 คน',mn:170000,mx:290000}],
+  chiangmai: [{n:'Dhara Dhevi Grand Hall',l:'แม่ริม เชียงใหม่',c:'50–200 คน',mn:140000,mx:260000},{n:'Nimman Garden Hall',l:'นิมมาน เชียงใหม่',c:'80–180 คน',mn:110000,mx:200000}],
+  phuket:    [{n:'Trisara Ballroom',l:'สิรินาถ ภูเก็ต',c:'50–150 คน',mn:280000,mx:480000},{n:'Andara Resort Hall',l:'กมลา ภูเก็ต',c:'80–200 คน',mn:230000,mx:420000}],
+  khonkaen:  [{n:'Pullman Khon Kaen',l:'เมือง ขอนแก่น',c:'100–300 คน',mn:100000,mx:180000}],
+  hatyai:    [{n:'Lee Gardens Ballroom',l:'เมือง หาดใหญ่',c:'100–350 คน',mn:90000,mx:160000}],
+};
+
+// ─────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────
+let currentTier = 'premium';
+let calcData = {};
+let lineUserId = '';
+let lineName = '';
+
+// ─────────────────────────────────────────────
+// LIFF init (graceful — ใช้ได้ทั้งใน LINE และ browser ทั่วไป)
+// ─────────────────────────────────────────────
+async function initLiff() {
+  if (LIFF_ID === 'YOUR_LIFF_ID') return; // ยังไม่ได้ตั้งค่า
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (liff.isLoggedIn()) {
+      const profile = await liff.getProfile();
+      lineUserId = profile.userId;
+      lineName   = profile.displayName;
+    }
+  } catch (e) { /* fallback: ใช้งานได้ปกติใน browser */ }
+}
+
+// ─────────────────────────────────────────────
+// Tier buttons
+// ─────────────────────────────────────────────
+function setTier(t) {
+  currentTier = t;
+  document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === t));
+  document.getElementById('tierSelect').value = t;
+}
+
+// ─────────────────────────────────────────────
+// Calculate
+// ─────────────────────────────────────────────
+function fmt(n) { return Math.round(n).toLocaleString('th-TH'); }
+
+function calculate() {
+  const loc   = document.getElementById('location').value;
+  const type  = document.getElementById('eventType').value;
+  const guests = Math.max(20, parseInt(document.getElementById('guests').value) || 100);
+  const tier  = currentTier;
+
+  const base  = BASE[type][tier] * guests * LOC_MULTI[loc];
+  const mid   = Math.round(base / 1000) * 1000;
+  const [rLo, rHi] = TIER_RANGE[tier];
+  const lo = Math.round(base * rLo / 1000) * 1000;
+  const hi = Math.round(base * rHi / 1000) * 1000;
+
+  calcData = { loc, type, guests, tier, budget: mid };
+
+  // Track calculation (pixel-style GET, no CORS issues)
+  trackEvent('calc', calcData);
+
+  // Show loading
+  document.getElementById('loading').classList.add('on');
+  document.getElementById('results').classList.remove('on');
+
+  setTimeout(() => {
+    document.getElementById('loading').classList.remove('on');
+    renderResults(mid, lo, hi, loc, type, guests, tier);
+    document.getElementById('results').classList.add('on');
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 600);
+}
+
+function renderResults(mid, lo, hi, loc, type, guests, tier) {
+  document.getElementById('heroAmt').textContent = fmt(mid);
+  document.getElementById('heroRange').textContent = `ช่วง: ฿${fmt(lo)} – ฿${fmt(hi)}`;
+  document.getElementById('heroTags').innerHTML = `
+    <span class="tag">📍 ${LOC_LABEL[loc]}</span>
+    <span class="tag">🍽️ ${document.querySelector('#eventType option:checked').text}</span>
+    <span class="tag">👥 ${guests} คน</span>
+  `;
+
+  // Split
+  const rows = SPLITS[type].map(([name, color, pct]) => {
+    const amt = Math.round(mid * pct / 100 / 500) * 500;
+    return `<div class="split-row">
+      <div class="split-name">${name}</div>
+      <div class="split-bar"><div class="split-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="split-pct">${pct}%</div>
+      <div class="split-amt">฿${fmt(amt)}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('splitRows').innerHTML = rows;
+
+  // Venue
+  const list = VENUES[loc] || VENUES.bangkok;
+  const v = list.find(x => {
+    const [mn,mx] = x.c.replace(/[^\d–-]/g,'').split(/[–-]/).map(Number);
+    return guests >= mn && guests <= (mx || 9999);
+  }) || list[0];
+  document.getElementById('vName').textContent  = v.n;
+  document.getElementById('vLoc').textContent   = v.l;
+  document.getElementById('vPrice').textContent = `THB ${fmt(v.mn)} – ${fmt(v.mx)}`;
+  document.getElementById('vCap').textContent   = `Capacity ${v.c}`;
+
+  // Tip & source
+  document.getElementById('tipText').innerHTML  = TIPS[type];
+}
+
+// ─────────────────────────────────────────────
+// Modal
+// ─────────────────────────────────────────────
+function openModal() {
+  document.getElementById('overlay').classList.add('on');
+  document.getElementById('formView').style.display = 'block';
+  document.getElementById('successView').style.display = 'none';
+  if (lineName) document.getElementById('fName').value = lineName;
+}
+function closeModal() { document.getElementById('overlay').classList.remove('on'); }
+function overlayClick(e) { if (e.target === document.getElementById('overlay')) closeModal(); }
+
+function submitLead() {
+  const name  = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  if (!name || !phone) { alert('กรุณากรอกชื่อและเบอร์โทรศัพท์'); return; }
+
+  const payload = {
+    ...calcData,
+    name, phone,
+    lineId:     document.getElementById('fLine').value.trim(),
+    lineUserId, lineName,
+    source:     getSource(),
+    device:     getDevice(),
+    ts:         new Date().toISOString(),
+  };
+
+  // Submit to Sheets
+  submitToSheets('lead', payload);
+
+  document.getElementById('formView').style.display = 'none';
+  document.getElementById('successView').style.display = 'block';
+}
+
+// ─────────────────────────────────────────────
+// Analytics & Sheets
+// ─────────────────────────────────────────────
+function trackEvent(action, data) {
+  if (SHEET_URL === 'YOUR_APPS_SCRIPT_URL') return;
+  const params = new URLSearchParams({
+    action, source: getSource(), device: getDevice(),
+    loc: data.loc || '', type: data.type || '',
+    guests: data.guests || 0, tier: data.tier || '',
+    budget: data.budget || 0,
+  });
+  new Image().src = `${SHEET_URL}?${params}`; // pixel tracking — no CORS
+}
+
+function submitToSheets(action, data) {
+  if (!SHEET_URL || SHEET_URL.includes('YOUR_')) return;
+  const params = new URLSearchParams({ action, ...flattenData(data) });
+  new Image().src = `${SHEET_URL}?${params}`;
+}
+
+function flattenData(d) {
+  return Object.fromEntries(Object.entries(d).map(([k,v]) => [k, String(v)]));
+}
+
+function getSource() {
+  if (typeof liff !== 'undefined' && liff.isInClient && liff.isInClient()) return 'line_liff';
+  const ref = document.referrer;
+  if (ref.includes('line')) return 'line_browser';
+  return 'direct';
+}
+
+function getDevice() {
+  const ua = navigator.userAgent;
+  if (/iPhone|Android/i.test(ua)) return 'mobile';
+  if (/iPad|Tablet/i.test(ua)) return 'tablet';
+  return 'desktop';
+}
+
+// ─────────────────────────────────────────────
+// Coming Soon
+// ─────────────────────────────────────────────
+function showComingSoon(name, desc) {
+  document.getElementById('csTitle').textContent = name;
+  document.getElementById('csSub').textContent = desc + '\n\nติดตามอัปเดตได้ที่ LINE OA Centerwedding';
+  document.getElementById('csOverlay').classList.add('on');
+}
+function closeCS(e) {
+  if (e.target === document.getElementById('csOverlay')) {
+    document.getElementById('csOverlay').classList.remove('on');
+  }
+}
+
+// ─────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────
+initLiff();
+trackEvent('open', {});
+</script>
+</body>
+</html>

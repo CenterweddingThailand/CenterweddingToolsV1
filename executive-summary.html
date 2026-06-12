@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executive Summary — CW Club Budget Advisor</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --navy: #1C2B3A; --navy2: #2e4057; --orange: #C8692E;
+      --gold: #c9a23a; --green: #15803d; --red: #dc2626;
+      --bg: #f8f9fa; --white: #fff; --border: #e2e8f0;
+      --text: #1a1a1a; --mid: #4a5568; --light: #718096;
+    }
+    body { font-family: 'Sarabun', sans-serif; background: var(--bg); color: var(--text); }
+
+    /* Page layout */
+    .page {
+      width: 210mm; min-height: 297mm; margin: 0 auto;
+      background: var(--white); padding: 14mm 16mm 12mm;
+      box-shadow: 0 0 30px rgba(0,0,0,.1);
+    }
+
+    /* Header */
+    .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 3px solid var(--navy); }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .logo { width: 44px; height: 44px; background: var(--navy); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; font-weight: 800; flex-shrink: 0; }
+    .header-text h1 { font-size: 20px; font-weight: 800; color: var(--navy); line-height: 1.2; }
+    .header-text p { font-size: 12px; color: var(--light); margin-top: 2px; }
+    .header-meta { text-align: right; font-size: 11px; color: var(--light); line-height: 1.8; }
+    .header-meta strong { color: var(--text); }
+
+    /* Status badge */
+    .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; }
+    .badge-orange { background: #fff3e6; color: var(--orange); }
+    .badge-green  { background: #dcfce7; color: var(--green); }
+    .badge-navy   { background: #e8ecf0; color: var(--navy); }
+
+    /* Section */
+    .section { margin-bottom: 14px; }
+    .section-title {
+      font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px;
+      color: var(--light); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;
+    }
+    .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    /* Hypothesis box */
+    .hypo-box { background: var(--navy); color: #fff; border-radius: 12px; padding: 14px 16px; }
+    .hypo-box .label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #a0aec0; margin-bottom: 6px; }
+    .hypo-box p { font-size: 14px; font-weight: 600; line-height: 1.6; }
+    .hypo-box .sub { font-size: 12px; color: #a0aec0; margin-top: 6px; }
+
+    /* Two-col grid */
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+    /* Info box */
+    .box { background: var(--bg); border-radius: 10px; padding: 12px 14px; border: 1px solid var(--border); }
+    .box-title { font-size: 11px; font-weight: 700; color: var(--mid); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .5px; }
+    .box p, .box li { font-size: 12.5px; color: var(--text); line-height: 1.7; }
+    .box ul { padding-left: 14px; }
+    .box li { margin-bottom: 2px; }
+
+    /* Flow diagram */
+    .flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 6px 0; }
+    .flow-step { background: var(--navy); color: #fff; border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; text-align: center; flex-shrink: 0; }
+    .flow-arrow { font-size: 14px; color: var(--light); margin: 0 4px; flex-shrink: 0; }
+    .flow-step.orange { background: var(--orange); }
+    .flow-step.green  { background: var(--green); }
+    .flow-step.ghost  { background: var(--bg); color: var(--mid); border: 1.5px solid var(--border); }
+
+    /* Stack table */
+    .stack-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .stack-table th { text-align: left; padding: 6px 10px; font-size: 11px; font-weight: 700; color: var(--light); text-transform: uppercase; letter-spacing: .5px; border-bottom: 1.5px solid var(--border); }
+    .stack-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .stack-table tr:last-child td { border-bottom: none; }
+    .stack-table .cost { font-weight: 700; color: var(--green); }
+    .cost-total { display: inline-block; background: var(--green); color: #fff; padding: 4px 14px; border-radius: 999px; font-size: 13px; font-weight: 800; margin-top: 4px; }
+
+    /* KPI cards */
+    .kpi-card { background: var(--bg); border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); text-align: center; }
+    .kpi-num { font-size: 22px; font-weight: 800; color: var(--orange); line-height: 1.1; }
+    .kpi-label { font-size: 11px; color: var(--mid); margin-top: 3px; font-weight: 500; }
+    .kpi-note { font-size: 10px; color: var(--light); margin-top: 2px; }
+
+    /* Timeline */
+    .timeline { display: flex; gap: 0; }
+    .tl-item { flex: 1; position: relative; padding: 0 6px; }
+    .tl-item::before { content: ''; position: absolute; top: 14px; left: 0; right: 0; height: 2px; background: var(--border); z-index: 0; }
+    .tl-item:first-child::before { left: 50%; }
+    .tl-item:last-child::before { right: 50%; }
+    .tl-dot { width: 28px; height: 28px; border-radius: 50%; background: var(--navy); color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; position: relative; z-index: 1; }
+    .tl-dot.orange { background: var(--orange); }
+    .tl-dot.green { background: var(--green); }
+    .tl-week { font-size: 10px; font-weight: 700; color: var(--mid); text-align: center; margin-bottom: 4px; }
+    .tl-text { font-size: 11px; color: var(--text); text-align: center; line-height: 1.5; }
+
+    /* Success criteria */
+    .criteria { display: flex; flex-direction: column; gap: 6px; }
+    .criterion { display: flex; align-items: flex-start; gap: 10px; padding: 8px 10px; background: var(--bg); border-radius: 8px; border: 1px solid var(--border); }
+    .crit-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .crit-body { flex: 1; }
+    .crit-title { font-size: 12.5px; font-weight: 700; }
+    .crit-desc { font-size: 11px; color: var(--mid); margin-top: 1px; }
+    .crit-val { font-size: 13px; font-weight: 800; color: var(--orange); flex-shrink: 0; }
+
+    /* Footer */
+    .footer { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .footer p { font-size: 10px; color: var(--light); }
+    .footer .stamp { background: var(--navy); color: #fff; border-radius: 6px; padding: 4px 12px; font-size: 11px; font-weight: 700; }
+
+    /* Print */
+    @media print {
+      body { background: white; }
+      .page { box-shadow: none; margin: 0; }
+      @page { size: A4; margin: 0; }
+    }
+    @media screen {
+      body { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="logo">CW</div>
+      <div class="header-text">
+        <h1>CW Club — Budget Advisor</h1>
+        <p>MVP Test Drive · Product Proposal</p>
+      </div>
+    </div>
+    <div class="header-meta">
+      <div><strong>วันที่:</strong> มิถุนายน 2026</div>
+      <div><strong>ช่องทาง:</strong> LINE Official Account</div>
+      <div><strong>งบ:</strong> <span class="badge badge-green">฿0 ทั้งหมด</span></div>
+    </div>
+  </div>
+
+  <!-- Hypothesis -->
+  <div class="section">
+    <div class="section-title">สมมติฐานที่ต้องการทดสอบ</div>
+    <div class="hypo-box">
+      <div class="label">Hypothesis</div>
+      <p>"ลูกค้าที่กำลังวางแผนงานต้องการ tool คำนวณงบที่แม่นยำ — ถ้าเราให้ได้ก่อนใคร จะช่วยให้ลูกค้า convert มาใช้บริการ Centerwedding มากขึ้น"</p>
+      <div class="sub">วัดผลใน 30 วัน | ช่องทาง: LINE OA Rich Menu</div>
+    </div>
+  </div>
+
+  <!-- Solution + Flow -->
+  <div class="grid2" style="margin-bottom:14px">
+    <div>
+      <div class="section-title">เครื่องมือที่สร้าง</div>
+      <div class="box">
+        <div class="box-title">Budget Advisor (Web App)</div>
+        <ul class="box">
+          <li>เลือกสถานที่ / ประเภทงาน / จำนวนแขก</li>
+          <li>คำนวณงบประมาณแนะนำพร้อม breakdown</li>
+          <li>ราคาจาก Centerwedding vendor database</li>
+          <li>แนะนำ venue ที่เหมาะกับงบ</li>
+          <li>ขอใบเสนอราคาได้ในขั้นตอนเดียว</li>
+          <li>ใช้ได้ทุก device · ไม่ต้อง install</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">User Flow</div>
+      <div class="box" style="height:100%">
+        <div style="display:flex;flex-direction:column;gap:6px;padding-top:2px">
+          <div class="flow">
+            <div class="flow-step">LINE Rich Menu</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step orange">Budget Advisor</div>
+          </div>
+          <div class="flow">
+            <div class="flow-step ghost">กรอกข้อมูลงาน</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step ghost">ดูงบ + breakdown</div>
+          </div>
+          <div class="flow">
+            <div class="flow-step ghost">ขอใบเสนอราคา</div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-step green">Google Sheets</div>
+          </div>
+          <div style="font-size:11px;color:var(--mid);margin-top:4px">
+            ← ทีม CW ติดต่อกลับภายใน 1 วัน
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tech Stack & Cost -->
+  <div class="section">
+    <div class="section-title">Technology Stack & ต้นทุน</div>
+    <table class="stack-table">
+      <thead>
+        <tr>
+          <th>ส่วนประกอบ</th>
+          <th>เทคโนโลยี</th>
+          <th>หน้าที่</th>
+          <th>ต้นทุน</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>Tool (Frontend)</strong></td><td>HTML / CSS / JS</td><td>Budget Advisor interface</td><td class="cost">฿0</td></tr>
+        <tr><td><strong>Hosting</strong></td><td>GitHub Pages / Vercel</td><td>เปิดให้ทุก device เข้าได้</td><td class="cost">฿0</td></tr>
+        <tr><td><strong>LINE LIFF</strong></td><td>LINE Front-end Framework</td><td>เปิดใน LINE ได้โดยตรง</td><td class="cost">฿0</td></tr>
+        <tr><td><strong>Backend / Database</strong></td><td>Google Apps Script</td><td>รับข้อมูล → บันทึก Sheets</td><td class="cost">฿0</td></tr>
+        <tr><td><strong>Database</strong></td><td>Google Sheets</td><td>เก็บ leads + analytics events</td><td class="cost">฿0</td></tr>
+        <tr><td><strong>Dashboard</strong></td><td>Google Looker Studio</td><td>Monitor ผล real-time</td><td class="cost">฿0</td></tr>
+      </tbody>
+    </table>
+    <div style="text-align:right;margin-top:8px">
+      ต้นทุนรวมทั้งหมด: <span class="cost-total">฿0 / เดือน</span>
+    </div>
+  </div>
+
+  <!-- KPIs + Success Criteria -->
+  <div class="grid2" style="margin-bottom:14px">
+    <div>
+      <div class="section-title">KPIs ที่วัด (30 วัน)</div>
+      <div class="grid3" style="gap:6px">
+        <div class="kpi-card">
+          <div class="kpi-num">500</div>
+          <div class="kpi-label">Opens</div>
+          <div class="kpi-note">เป้าหมาย</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num">300</div>
+          <div class="kpi-label">Calculations</div>
+          <div class="kpi-note">60% ของ opens</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num">30</div>
+          <div class="kpi-label">Leads</div>
+          <div class="kpi-note">10% conversion</div>
+        </div>
+      </div>
+      <div class="box" style="margin-top:8px">
+        <div class="box-title">ข้อมูลที่เก็บได้</div>
+        <ul class="box">
+          <li>จำนวนผู้เปิด tool (opens)</li>
+          <li>จำนวนการคำนวณ + ประเภทงาน/สถานที่</li>
+          <li>ช่วงงบที่ลูกค้าสนใจ (budget range)</li>
+          <li>Conversion rate: คำนวณ → ขอใบเสนอราคา</li>
+          <li>Device type (mobile/desktop)</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">เกณฑ์ความสำเร็จ (Go / No-Go)</div>
+      <div class="criteria">
+        <div class="criterion">
+          <div class="crit-icon">🟢</div>
+          <div class="crit-body">
+            <div class="crit-title">GO — ขยาย tool</div>
+            <div class="crit-desc">leads ≥ 30 คน ใน 30 วัน + conversion ≥ 8%</div>
+          </div>
+        </div>
+        <div class="criterion">
+          <div class="crit-icon">🟡</div>
+          <div class="crit-body">
+            <div class="crit-title">ITERATE — ปรับ UX</div>
+            <div class="crit-desc">opens สูง แต่ conversion ต่ำ → แก้ขั้นตอนการขอใบเสนอ</div>
+          </div>
+        </div>
+        <div class="criterion">
+          <div class="crit-icon">🔴</div>
+          <div class="crit-body">
+            <div class="crit-title">PIVOT — เปลี่ยนทิศทาง</div>
+            <div class="crit-desc">opens &lt; 100 ใน 30 วัน → ปัญหาอยู่ที่ distribution ไม่ใช่ tool</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section">
+    <div class="section-title">Timeline</div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot">1</div>
+        <div class="tl-week">สัปดาห์ที่ 1</div>
+        <div class="tl-text">Setup<br/>GitHub + Apps Script<br/>+ LIFF ID</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot">2</div>
+        <div class="tl-week">สัปดาห์ที่ 2</div>
+        <div class="tl-text">LINE OA<br/>ตั้ง Rich Menu<br/>+ ทดสอบ</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot orange">3</div>
+        <div class="tl-week">สัปดาห์ที่ 3</div>
+        <div class="tl-text">Launch<br/>โปรโมทผ่าน<br/>LINE + Social</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot orange">4–6</div>
+        <div class="tl-week">สัปดาห์ที่ 4–6</div>
+        <div class="tl-text">วัดผล<br/>ดู dashboard<br/>+ ติดตาม leads</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot green">7</div>
+        <div class="tl-week">สัปดาห์ที่ 7</div>
+        <div class="tl-text">Review<br/>Go / Iterate<br/>/ Pivot</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Next Steps -->
+  <div class="section" style="margin-bottom:0">
+    <div class="section-title">ขั้นตอนถัดไป (Action Required)</div>
+    <div class="grid3" style="gap:8px">
+      <div class="box">
+        <div class="box-title" style="color:var(--orange)">Step 1 · IT/Dev</div>
+        <ul class="box" style="font-size:12px">
+          <li>สร้าง Google Sheets</li>
+          <li>Deploy Apps Script</li>
+          <li>Upload ไฟล์ขึ้น GitHub</li>
+          <li>ลงทะเบียน LIFF ID</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="box-title" style="color:var(--orange)">Step 2 · Marketing</div>
+        <ul class="box" style="font-size:12px">
+          <li>ตั้ง Rich Menu ใน LINE OA</li>
+          <li>สร้าง post โปรโมท</li>
+          <li>วาง link ในเว็บ / social</li>
+          <li>แจ้ง account managers</li>
+        </ul>
+      </div>
+      <div class="box">
+        <div class="box-title" style="color:var(--orange)">Step 3 · Operations</div>
+        <ul class="box" style="font-size:12px">
+          <li>ตั้ง Looker Studio dashboard</li>
+          <li>กำหนดผู้รับผิดชอบ leads</li>
+          <li>SLA ติดต่อกลับ: 1 วัน</li>
+          <li>Weekly review meeting</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div>
+      <p>Centerwedding · info@centerwedding.com · www.centerwedding.com</p>
+      <p style="margin-top:2px">เอกสารนี้จัดทำเพื่อนำเสนอต่อผู้บริหาร — ข้อมูลเป็นความลับของบริษัท</p>
+    </div>
+    <div class="stamp">INTERNAL USE ONLY</div>
+  </div>
+
+</div>
+
+<div style="text-align:center;margin-top:16px;font-size:12px;color:#999">
+  <button onclick="window.print()" style="padding:8px 20px;background:#1C2B3A;color:#fff;border:none;border-radius:8px;cursor:pointer;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:600">🖨️ พิมพ์ / บันทึก PDF</button>
+</div>
+
+</body>
+</html>
