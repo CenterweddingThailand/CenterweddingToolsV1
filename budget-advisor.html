@@ -60,15 +60,6 @@
     .num-wrap .unit { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); font-size: 12px; color: var(--light); pointer-events: none; }
     .num-wrap input { padding-right: 36px; }
 
-    /* Tier buttons */
-    .tier-btns { display: flex; gap: 8px; margin-bottom: 14px; }
-    .tier-btn {
-      flex: 1; padding: 9px 6px; border: 1.5px solid var(--border); border-radius: 10px;
-      background: var(--bg); font-family: 'Sarabun', sans-serif; font-size: 13px; font-weight: 600;
-      color: var(--mid); cursor: pointer; text-align: center; transition: all .15s;
-    }
-    .tier-btn.active { border-color: var(--orange); background: var(--orange); color: var(--white); }
-    .tier-btn:hover:not(.active) { border-color: var(--orange); color: var(--orange); }
 
     /* ── Calc button ── */
     .btn-calc {
@@ -200,11 +191,13 @@
         <label data-i18n="labelType">ประเภทงาน</label>
         <div class="sel-wrap">
           <select id="eventType">
-            <option value="wedding" data-i18n-opt="typeWedding">งานแต่งงาน</option>
-            <option value="corporate">Corporate Dinner</option>
-            <option value="seminar" data-i18n-opt="typeSeminar">สัมมนา</option>
-            <option value="birthday">Birthday / Party</option>
-            <option value="product">Product Launch</option>
+            <option value="wedding"    data-i18n-opt="typeWedding">งานแต่งงาน</option>
+            <option value="weddingam"  data-i18n-opt="typeWeddingAM">งานแต่งงานเช้า</option>
+            <option value="weddingpm"  data-i18n-opt="typeWeddingPM">งานแต่งงานเย็น</option>
+            <option value="dinner"     data-i18n-opt="typeDinner">ดินเนอร์</option>
+            <option value="garden"     data-i18n-opt="typeGarden">งานแต่งงานในสวน</option>
+            <option value="beach"      data-i18n-opt="typeBeach">งานแต่งริมทะเล</option>
+            <option value="engagement" data-i18n-opt="typeEngagement">งานหมั้น</option>
           </select>
         </div>
       </div>
@@ -227,11 +220,6 @@
           </select>
         </div>
       </div>
-    </div>
-    <div class="tier-btns" id="tierBtns">
-      <button class="tier-btn" data-tier="standard" onclick="setTier('standard')">Standard</button>
-      <button class="tier-btn active" data-tier="premium" onclick="setTier('premium')">Premium</button>
-      <button class="tier-btn" data-tier="luxury" onclick="setTier('luxury')">Luxury</button>
     </div>
     <button class="btn-calc" onclick="calculate()">
       <span data-i18n="btnCalc">คำนวณงบประมาณ</span><span>→</span>
@@ -362,7 +350,8 @@ const T = {
     btnCta:'📋 ขอใบเสนอราคา venue',
     locBangkok:'กรุงเทพฯ', locPattaya:'พัทยา', locChiangmai:'เชียงใหม่',
     locPhuket:'ภูเก็ต', locKhonkaen:'ขอนแก่น', locHatyai:'หาดใหญ่',
-    typeWedding:'งานแต่งงาน', typeSeminar:'สัมมนา',
+    typeWedding:'งานแต่งงาน', typeWeddingAM:'งานแต่งงานเช้า', typeWeddingPM:'งานแต่งงานเย็น',
+    typeDinner:'ดินเนอร์', typeGarden:'งานแต่งงานในสวน', typeBeach:'งานแต่งริมทะเล', typeEngagement:'งานหมั้น',
     modalTitle:'ขอใบเสนอราคา',
     modalSub:'ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ',
     labelName:'ชื่อ-นามสกุล *', labelPhone:'เบอร์โทรศัพท์ *', labelLine:'LINE ID (ถ้ามี)',
@@ -383,7 +372,8 @@ const T = {
     btnCta:'📋 Request Venue Quotation',
     locBangkok:'Bangkok', locPattaya:'Pattaya', locChiangmai:'Chiang Mai',
     locPhuket:'Phuket', locKhonkaen:'Khon Kaen', locHatyai:'Hat Yai',
-    typeWedding:'Wedding', typeSeminar:'Seminar',
+    typeWedding:'Full Day Wedding', typeWeddingAM:'Morning Wedding', typeWeddingPM:'Evening Wedding',
+    typeDinner:'Dinner Reception', typeGarden:'Garden Wedding', typeBeach:'Beach Wedding', typeEngagement:'Engagement Party',
     modalTitle:'Request Quotation',
     modalSub:'Our team will contact you within 1 business day.',
     labelName:'Full Name *', labelPhone:'Phone Number *', labelLine:'LINE ID (optional)',
@@ -399,18 +389,22 @@ const T = {
 
 const TIPS_LANG = {
   th: {
-    wedding:  'ควรตั้ง <strong>งบสำรอง 10–15%</strong> สำหรับค่าสินสอด ค่าฤกษ์มงคล service charge และค่าใช้จ่ายฉุกเฉิน',
-    corporate:'ควรบวก <strong>5–10% สำรอง</strong> สำหรับ service charge, corkage fee และ overtime ของทีมงาน',
-    seminar:  'จองห้องล่วงหน้า <strong>อย่างน้อย 6–8 สัปดาห์</strong> เพื่อให้ได้ห้องที่มี AV equipment ครบถ้วน',
-    birthday: 'กำหนด <strong>dress code</strong> และมีกิจกรรม interactive ช่วยสร้างประสบการณ์ที่จดจำได้',
-    product:  'งบ <strong>Production & Staging</strong> ส่งผลโดยตรงต่อคุณภาพสื่อและ media coverage หลังงาน',
+    wedding:    'งานแต่งทั้งวันควรตั้ง <strong>งบสำรอง 15–20%</strong> รองรับค่าสินสอด ฤกษ์มงคล และ service charge ทั้งสองช่วง',
+    weddingam:  'งานช่วงเช้าแนะนำให้เริ่มพิธี <strong>ไม่เกิน 9.00 น.</strong> และจบก่อนเที่ยง ควรสำรองงบ 10% สำหรับค่าฤกษ์และของชำร่วย',
+    weddingpm:  'งานเย็นมักมี <strong>overtime ทีมงาน</strong> สำรองงบ 10–15% และยืนยันเวลาปิดห้องกับ venue ล่วงหน้า',
+    dinner:     'ดินเนอร์สุดพิเศษเน้น <strong>ดอกไม้ + แสงเทียน + เมนู tasting</strong> เพื่อสร้างบรรยากาศสุดโรแมนติก',
+    garden:     'เตรียม <strong>แผน B สำหรับฝนหรืออากาศร้อน</strong> เต็นท์หรือ canopy ช่วยได้ และควรติดไฟส่องสว่างหลังพระอาทิตย์ตก',
+    beach:      'ตรวจสอบ <strong>น้ำขึ้น-ลงและสภาพอากาศ</strong> ล่วงหน้า และเตรียมหินหรือ platform สำหรับรองรับในกรณีทรายชื้น',
+    engagement: 'งานหมั้นเน้นความ <strong>อบอุ่นและครอบครัว</strong> ดอกไม้สีหวาน กล่องของหมั้น และ photo moment ช่วยสร้างความทรงจำ',
   },
   en: {
-    wedding:  'Set aside a <strong>10–15% contingency</strong> for dowry, auspicious fees, service charges, and unexpected costs.',
-    corporate:'Add a <strong>5–10% buffer</strong> for service charges, corkage fees, and staff overtime.',
-    seminar:  'Book the venue <strong>at least 6–8 weeks</strong> ahead to secure a room with full AV equipment.',
-    birthday: 'Define a <strong>dress code</strong> and plan interactive activities to create a memorable experience.',
-    product:  'The <strong>Production & Staging</strong> budget directly impacts media quality and post-event coverage.',
+    wedding:    'For a full-day wedding, budget a <strong>15–20% contingency</strong> for dowry, auspicious fees, and service charges across both sessions.',
+    weddingam:  'Start the ceremony <strong>no later than 9:00 AM</strong> and wrap up before noon. Reserve 10% for auspicious fees and favours.',
+    weddingpm:  'Evening weddings often incur <strong>staff overtime costs</strong> — keep a 10–15% buffer and confirm venue closing time in advance.',
+    dinner:     'Focus on <strong>flowers, candlelight, and a tasting menu</strong> to create the most romantic atmosphere for an intimate dinner.',
+    garden:     'Prepare a <strong>rain contingency plan</strong> — a tent or canopy is essential. Add lighting for after sunset.',
+    beach:      'Check <strong>tides and weather forecasts</strong> well in advance. Consider a platform or matting for wet sand conditions.',
+    engagement: 'Keep it <strong>warm and family-focused</strong> — soft florals, a beautiful ring box, and a dedicated photo moment go a long way.',
   }
 };
 
@@ -462,11 +456,13 @@ const LIFF_ID   = 'YOUR_LIFF_ID';         // วาง LIFF ID จาก LINE De
 // Source: Centerwedding vendor database + market research
 // ─────────────────────────────────────────────
 const BASE = {
-  wedding:   { standard: 2200, premium: 3800, luxury: 6800 },
-  corporate: { standard: 1800, premium: 3200, luxury: 5500 },
-  seminar:   { standard: 1200, premium: 2000, luxury: 3500 },
-  birthday:  { standard: 1500, premium: 2600, luxury: 4500 },
-  product:   { standard: 1700, premium: 3000, luxury: 5000 },
+  wedding:    { standard: 4500, premium: 7500, luxury: 13000 }, // แต่งทั้งวัน เช้า+เย็น
+  weddingam:  { standard: 2500, premium: 4000, luxury:  7000 }, // งานเช้า
+  weddingpm:  { standard: 3000, premium: 5000, luxury:  9000 }, // งานเย็น (มากกว่าเช้า)
+  dinner:     { standard: 1500, premium: 2500, luxury:  4500 }, // intimate dinner
+  garden:     { standard: 2000, premium: 3200, luxury:  5500 }, // สวน
+  beach:      { standard: 2200, premium: 3500, luxury:  6000 }, // ริมทะเล
+  engagement: { standard: 1800, premium: 2800, luxury:  4800 }, // งานหมั้น
 };
 const LOC_MULTI  = { bangkok:1.00, pattaya:0.90, chiangmai:0.82, phuket:1.12, khonkaen:0.75, hatyai:0.78 };
 const LOC_KEY    = { bangkok:'locBangkok', pattaya:'locPattaya', chiangmai:'locChiangmai', phuket:'locPhuket', khonkaen:'locKhonkaen', hatyai:'locHatyai' };
@@ -474,11 +470,13 @@ const TIER_MULTI = { standard:1.0, premium:1.0, luxury:1.0 };
 const TIER_RANGE = { standard:[0.85,1.15], premium:[0.88,1.18], luxury:[0.85,1.20] };
 
 const SPLITS = {
-  wedding:   [['Venue & F&B','#1C2B3A',45],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['splitDress','#e8a87c',10],['splitCeremony','#c9a23a',10],['Other','#d1d5db',8]],
-  corporate: [['Venue & F&B','#1C2B3A',65],['Decoration','#4a6fa5',12],['Photo & Video','#D81B7A',8],['Entertainment','#e8a87c',7],['Other','#d1d5db',8]],
-  seminar:   [['Venue & AV','#1C2B3A',50],['F&B','#4a6fa5',20],['Materials','#D81B7A',12],['Speaker','#e8a87c',10],['Other','#d1d5db',8]],
-  birthday:  [['Venue & F&B','#1C2B3A',50],['Decoration','#4a6fa5',20],['Entertainment','#D81B7A',15],['Photo','#e8a87c',8],['Other','#d1d5db',7]],
-  product:   [['Venue & F&B','#1C2B3A',40],['Production','#4a6fa5',25],['PR & Media','#D81B7A',15],['Decoration','#e8a87c',12],['Other','#d1d5db',8]],
+  wedding:    [['Venue & F&B','#1C2B3A',38],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['splitDress','#e8a87c',10],['splitCeremony','#c9a23a',10],['Music & MC','#9c6fbd',8],['Other','#d1d5db',7]],
+  weddingam:  [['Venue & F&B','#1C2B3A',43],['Decoration','#4a6fa5',16],['Photo & Video','#D81B7A',15],['splitDress','#e8a87c',12],['splitCeremony','#c9a23a',9],['Other','#d1d5db',5]],
+  weddingpm:  [['Venue & F&B','#1C2B3A',48],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['splitDress','#e8a87c',10],['Music & MC','#9c6fbd',9],['Other','#d1d5db',6]],
+  dinner:     [['Venue & F&B','#1C2B3A',60],['Decoration','#4a6fa5',18],['Photo & Video','#D81B7A',12],['Other','#d1d5db',10]],
+  garden:     [['Venue & F&B','#1C2B3A',38],['Decoration','#4a6fa5',22],['Photo & Video','#D81B7A',16],['splitDress','#e8a87c',12],['Other','#d1d5db',12]],
+  beach:      [['Venue & F&B','#1C2B3A',35],['Decoration','#4a6fa5',22],['Photo & Video','#D81B7A',20],['splitDress','#e8a87c',13],['Other','#d1d5db',10]],
+  engagement: [['Venue & F&B','#1C2B3A',48],['Decoration','#4a6fa5',20],['Photo & Video','#D81B7A',15],['splitDress','#e8a87c',10],['Other','#d1d5db',7]],
 };
 const VENUES = {
   bangkok:   [{n:'The Grand Ballroom',l:'สุขุมวิท กรุงเทพฯ',c:'80–250 คน',mn:280000,mx:420000},{n:'Riverside Event Hall',l:'เจริญนคร กรุงเทพฯ',c:'120–300 คน',mn:200000,mx:350000},{n:'Crystal Hall Bangkok',l:'รัชดา กรุงเทพฯ',c:'200–500 คน',mn:380000,mx:600000}],
@@ -492,7 +490,6 @@ const VENUES = {
 // ─────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────
-let currentTier = 'premium';
 let calcData = {};
 let lineUserId = '';
 let lineName = '';
@@ -513,24 +510,15 @@ async function initLiff() {
 }
 
 // ─────────────────────────────────────────────
-// Tier buttons
-// ─────────────────────────────────────────────
-function setTier(t) {
-  currentTier = t;
-  document.querySelectorAll('.tier-btn').forEach(b => b.classList.toggle('active', b.dataset.tier === t));
-  document.getElementById('tierSelect').value = t;
-}
-
-// ─────────────────────────────────────────────
 // Calculate
 // ─────────────────────────────────────────────
 function fmt(n) { return Math.round(n).toLocaleString('th-TH'); }
 
 function calculate() {
-  const loc   = document.getElementById('location').value;
-  const type  = document.getElementById('eventType').value;
+  const loc    = document.getElementById('location').value;
+  const type   = document.getElementById('eventType').value;
   const guests = Math.max(20, parseInt(document.getElementById('guests').value) || 100);
-  const tier  = currentTier;
+  const tier   = document.getElementById('tierSelect').value;
 
   const base  = BASE[type][tier] * guests * LOC_MULTI[loc];
   const mid   = Math.round(base / 1000) * 1000;
