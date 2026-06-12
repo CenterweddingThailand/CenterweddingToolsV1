@@ -112,6 +112,11 @@
     .cs-pill { display: inline-block; background: var(--pink-light); color: var(--pink); font-size: 12px; font-weight: 700; padding: 5px 18px; border-radius: 999px; margin-bottom: 18px; }
     .cs-close { width: 100%; padding: 13px; background: var(--pink); color: #fff; border: none; border-radius: 12px; font-family: 'Sarabun', sans-serif; font-size: 15px; font-weight: 700; cursor: pointer; }
 
+    /* ── Lang toggle ── */
+    .lang-toggle { display: flex; align-items: center; gap: 1px; background: var(--bg); border-radius: 8px; padding: 2px; }
+    .lang-btn { background: none; border: none; font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 700; color: var(--light); cursor: pointer; padding: 3px 8px; border-radius: 6px; transition: all .15s; }
+    .lang-btn.active { background: var(--white); color: var(--pink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
     /* Confetti animation for completing all tasks */
     @keyframes pop { 0%{transform:scale(1)} 50%{transform:scale(1.08)} 100%{transform:scale(1)} }
     .celebrate { animation: pop .4s ease; }
@@ -154,7 +159,11 @@
     <div class="topbar-logo"><img src="./logo.png" alt="Centerwedding" /></div>
     <div class="topbar-divider"></div>
     <div class="topbar-title">Planning Checklist</div>
-    <button class="topbar-reset" onclick="confirmReset()">รีเซ็ต</button>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnTH" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+    <button class="topbar-reset" id="btnReset" onclick="confirmReset()">รีเซ็ต</button>
   </div>
 
   <!-- Overall Progress -->
@@ -265,82 +274,205 @@
 
 <script>
 // ─────────────────────────────────────────────
+// LANGUAGE
+// ─────────────────────────────────────────────
+let lang = localStorage.getItem('cw_lang') || 'th';
+function t(key) { return (CL[lang] && CL[lang][key]) || (CL.th[key]) || key; }
+
+const CL = {
+  th: {
+    overallTitle:'Overall progress', doneSuffix:'งานเสร็จแล้ว',
+    nextTitle:'งานที่ต้องทำต่อไป', viewAll:'ดูทั้งหมด',
+    allDone:'🎉 ทำครบทุกงานแล้ว!',
+    catHeader:'หมวดหมู่', addTask:'＋ เพิ่มงาน',
+    badgeHigh:'สำคัญ', badgeMed:'ควรทำ', badgeMine:'ของฉัน',
+    btnHelp:'💬 ขอความช่วยเหลือจาก CW',
+    btnReset:'รีเซ็ต',
+    confirmReset:'รีเซ็ต checklist ทั้งหมดหรือไม่?',
+    addSheetTitle:'➕ เพิ่มงานของคุณเอง',
+    addLabelName:'ชื่องาน', addPlaceholder:'เช่น นัดซ้อมพิธีแต่งงาน...',
+    addLabelCat:'หมวดหมู่', addOptDefault:'— เลือกหมวดหมู่ —',
+    addCancel:'ยกเลิก', addConfirm:'＋ เพิ่มงาน',
+    csBack:'กลับไปที่ Checklist',
+    // categories
+    catVenue:'สถานที่จัดงาน', catFood:'อาหารและเครื่องดื่ม',
+    catDeco:'ดอกไม้และตกแต่งสถานที่', catPhoto:'ช่างภาพและวิดีโอ',
+    catEntertain:'ดนตรีและ MC', catTransport:'การเดินทาง',
+    catDress:'ชุดและแต่งหน้า', catInvite:'การ์ดเชิญและของชำร่วย',
+    // tasks venue
+    v1:'กำหนดวันและเวลาของงาน', v2:'สำรวจสถานที่อย่างน้อย 3 แห่ง',
+    v3:'ยืนยัน venue package และเซ็นสัญญา', v4:'วางแผนผังห้องจัดเลี้ยง',
+    v5:'ตรวจสอบ parking และการเดินทาง',
+    // tasks food
+    f1:'เลือกเมนูอาหารและเครื่องดื่ม', f2:'นัด food tasting กับ venue',
+    f3:'ยืนยันจำนวนแขกกับทีมครัว', f4:'เลือกเค้กแต่งงาน',
+    f5:'ตัดสินใจเรื่อง open bar', f6:'แจ้งอาหารพิเศษ (เจ / ฮาลาล)',
+    // tasks deco
+    d1:'เลือกธีมและชุดสีของงาน', d2:'เลือกดอกไม้และการตกแต่ง',
+    d3:'ออกแบบ backdrop และ photo booth', d4:'ยืนยันการตกแต่งโต๊ะแขก',
+    // tasks photo
+    p1:'เลือกและจองช่างภาพ', p2:'เลือกและจองช่างวิดีโอ',
+    p3:'นัด pre-wedding photoshoot', p4:'ส่ง mood board ให้ช่างภาพ',
+    p5:'ยืนยัน shot list วันงาน',
+    // tasks entertain
+    e1:'เลือกวงดนตรีหรือ DJ', e2:'เลือกพิธีกร (MC)',
+    e3:'วางโปรแกรมงานทั้งหมด', e4:'ซ้อมพิธีการก่อนวันงาน',
+    // tasks transport
+    t1:'จัดรถเจ้าบ่าวเจ้าสาว', t2:'จัดรถรับส่งแขก VIP',
+    t3:'แจ้ง parking และแผนที่ให้แขก',
+    // tasks dress
+    dr1:'เลือกและจองชุดเจ้าสาว', dr2:'เลือกและจองสูทเจ้าบ่าว',
+    dr3:'จองช่างแต่งหน้าและทำผม', dr4:'นัด fitting ชุดก่อนวันงาน',
+    // tasks invite
+    i1:'ออกแบบการ์ดเชิญ', i2:'ส่งการ์ดเชิญล่วงหน้าอย่างน้อย 4 สัปดาห์',
+    i3:'เลือกของชำร่วย', i4:'จัดเตรียมของชำร่วยให้ครบ',
+  },
+  en: {
+    overallTitle:'Overall progress', doneSuffix:'tasks completed',
+    nextTitle:'Next Tasks', viewAll:'View all',
+    allDone:'🎉 All tasks completed!',
+    catHeader:'Categories', addTask:'＋ Add Task',
+    badgeHigh:'Important', badgeMed:'To-do', badgeMine:'Mine',
+    btnHelp:'💬 Get help from CW',
+    btnReset:'Reset',
+    confirmReset:'Reset the entire checklist?',
+    addSheetTitle:'➕ Add Your Own Task',
+    addLabelName:'Task Name', addPlaceholder:'e.g. Schedule rehearsal...',
+    addLabelCat:'Category', addOptDefault:'— Select category —',
+    addCancel:'Cancel', addConfirm:'＋ Add Task',
+    csBack:'Back to Checklist',
+    // categories
+    catVenue:'Venue', catFood:'Food & Beverages',
+    catDeco:'Flowers & Decoration', catPhoto:'Photo & Video',
+    catEntertain:'Music & MC', catTransport:'Transportation',
+    catDress:'Dress & Makeup', catInvite:'Invitations & Favors',
+    // tasks venue
+    v1:'Set event date and time', v2:'Visit at least 3 venues',
+    v3:'Confirm venue package and sign contract', v4:'Plan banquet hall layout',
+    v5:'Check parking and transport access',
+    // tasks food
+    f1:'Choose food and beverage menus', f2:'Schedule food tasting with venue',
+    f3:'Confirm guest count with kitchen team', f4:'Select wedding cake',
+    f5:'Decide on open bar', f6:'Inform kitchen of dietary needs (veg / halal)',
+    // tasks deco
+    d1:'Choose theme and colour scheme', d2:'Select flowers and decorations',
+    d3:'Design backdrop and photo booth', d4:'Confirm guest table décor',
+    // tasks photo
+    p1:'Choose and book photographer', p2:'Choose and book videographer',
+    p3:'Schedule pre-wedding photoshoot', p4:'Send mood board to photographer',
+    p5:'Confirm shot list for the event day',
+    // tasks entertain
+    e1:'Choose live band or DJ', e2:'Choose MC / Emcee',
+    e3:'Plan full event programme', e4:'Rehearse ceremony before event day',
+    // tasks transport
+    t1:'Arrange car for bride and groom', t2:'Arrange transport for VIP guests',
+    t3:'Share parking info and map with guests',
+    // tasks dress
+    dr1:'Choose and book bridal gown', dr2:'Choose and book groom\'s suit',
+    dr3:'Book makeup artist and hairstylist', dr4:'Schedule dress fitting before event day',
+    // tasks invite
+    i1:'Design invitation card', i2:'Send invitations at least 4 weeks in advance',
+    i3:'Choose wedding favours', i4:'Prepare all wedding favours',
+  }
+};
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('cw_lang', l);
+  document.getElementById('btnTH').classList.toggle('active', l === 'th');
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  applyLang();
+  renderAll();
+}
+
+function applyLang() {
+  document.getElementById('btnReset').textContent = t('btnReset');
+  document.querySelector('.cat-header-row .btn-add-task').textContent = t('addTask');
+  document.querySelector('.card-title').textContent = t('catHeader');
+  // add sheet
+  document.querySelector('.add-sheet-title').textContent = t('addSheetTitle');
+  document.querySelector('.add-label[for="addTaskName"]').textContent = t('addLabelName');
+  document.getElementById('addTaskName').placeholder = t('addPlaceholder');
+  document.querySelector('.add-label[for="addTaskCat"]').textContent = t('addLabelCat');
+  document.querySelector('#addTaskCat option[value=""]').textContent = t('addOptDefault');
+  const catOptLabels = ['catVenue','catFood','catDeco','catPhoto','catEntertain','catTransport','catDress','catInvite'];
+  document.querySelectorAll('#addTaskCat option[value]').forEach((el, i) => {
+    if (catOptLabels[i]) el.textContent = CATEGORIES[i].icon + ' ' + t(catOptLabels[i]);
+  });
+  document.querySelector('.btn-add-cancel').textContent = t('addCancel');
+  document.querySelector('.btn-add-confirm').textContent = t('addConfirm');
+  // cs close
+  document.querySelector('.cs-close').textContent = t('csBack');
+  // main cta
+  document.querySelector('.btn-cta').textContent = t('btnHelp');
+  // next header
+  document.querySelector('.next-header h3').textContent = t('nextTitle');
+  document.querySelector('.view-all').textContent = t('viewAll');
+  // progress section
+  document.querySelector('.progress-info h3').textContent = t('overallTitle');
+}
+
+// ─────────────────────────────────────────────
 // DATA — รายการ tasks งานแต่งงาน
 // ─────────────────────────────────────────────
 const CATEGORIES = [
   {
-    id: 'venue', icon: '🏛️', name: 'สถานที่จัดงาน',
+    id: 'venue', icon: '🏛️', nameKey: 'catVenue',
     tasks: [
-      { id: 'v1', name: 'กำหนดวันและเวลาของงาน', priority: 'high' },
-      { id: 'v2', name: 'สำรวจสถานที่อย่างน้อย 3 แห่ง', priority: 'high' },
-      { id: 'v3', name: 'ยืนยัน venue package และเซ็นสัญญา', priority: 'high' },
-      { id: 'v4', name: 'วางแผนผังห้องจัดเลี้ยง', priority: 'med' },
-      { id: 'v5', name: 'ตรวจสอบ parking และการเดินทาง', priority: 'med' },
+      { id: 'v1', priority: 'high' }, { id: 'v2', priority: 'high' },
+      { id: 'v3', priority: 'high' }, { id: 'v4', priority: 'med' },
+      { id: 'v5', priority: 'med' },
     ]
   },
   {
-    id: 'food', icon: '🍽️', name: 'อาหารและเครื่องดื่ม',
+    id: 'food', icon: '🍽️', nameKey: 'catFood',
     tasks: [
-      { id: 'f1', name: 'เลือกเมนูอาหารและเครื่องดื่ม', priority: 'high' },
-      { id: 'f2', name: 'นัด food tasting กับ venue', priority: 'high' },
-      { id: 'f3', name: 'ยืนยันจำนวนแขกกับทีมครัว', priority: 'high' },
-      { id: 'f4', name: 'เลือกเค้กแต่งงาน', priority: 'med' },
-      { id: 'f5', name: 'ตัดสินใจเรื่อง open bar', priority: 'med' },
-      { id: 'f6', name: 'แจ้งอาหารพิเศษ (เจ / ฮาลาล)', priority: 'med' },
+      { id: 'f1', priority: 'high' }, { id: 'f2', priority: 'high' },
+      { id: 'f3', priority: 'high' }, { id: 'f4', priority: 'med' },
+      { id: 'f5', priority: 'med' }, { id: 'f6', priority: 'med' },
     ]
   },
   {
-    id: 'deco', icon: '🌸', name: 'ดอกไม้และตกแต่งสถานที่',
+    id: 'deco', icon: '🌸', nameKey: 'catDeco',
     tasks: [
-      { id: 'd1', name: 'เลือกธีมและชุดสีของงาน', priority: 'high' },
-      { id: 'd2', name: 'เลือกดอกไม้และการตกแต่ง', priority: 'high' },
-      { id: 'd3', name: 'ออกแบบ backdrop และ photo booth', priority: 'med' },
-      { id: 'd4', name: 'ยืนยันการตกแต่งโต๊ะแขก', priority: 'med' },
+      { id: 'd1', priority: 'high' }, { id: 'd2', priority: 'high' },
+      { id: 'd3', priority: 'med' }, { id: 'd4', priority: 'med' },
     ]
   },
   {
-    id: 'photo', icon: '📷', name: 'ช่างภาพและวิดีโอ',
+    id: 'photo', icon: '📷', nameKey: 'catPhoto',
     tasks: [
-      { id: 'p1', name: 'เลือกและจองช่างภาพ', priority: 'high' },
-      { id: 'p2', name: 'เลือกและจองช่างวิดีโอ', priority: 'high' },
-      { id: 'p3', name: 'นัด pre-wedding photoshoot', priority: 'med' },
-      { id: 'p4', name: 'ส่ง mood board ให้ช่างภาพ', priority: 'med' },
-      { id: 'p5', name: 'ยืนยัน shot list วันงาน', priority: 'med' },
+      { id: 'p1', priority: 'high' }, { id: 'p2', priority: 'high' },
+      { id: 'p3', priority: 'med' }, { id: 'p4', priority: 'med' },
+      { id: 'p5', priority: 'med' },
     ]
   },
   {
-    id: 'entertain', icon: '🎵', name: 'ดนตรีและ MC',
+    id: 'entertain', icon: '🎵', nameKey: 'catEntertain',
     tasks: [
-      { id: 'e1', name: 'เลือกวงดนตรีหรือ DJ', priority: 'high' },
-      { id: 'e2', name: 'เลือกพิธีกร (MC)', priority: 'high' },
-      { id: 'e3', name: 'วางโปรแกรมงานทั้งหมด', priority: 'high' },
-      { id: 'e4', name: 'ซ้อมพิธีการก่อนวันงาน', priority: 'med' },
+      { id: 'e1', priority: 'high' }, { id: 'e2', priority: 'high' },
+      { id: 'e3', priority: 'high' }, { id: 'e4', priority: 'med' },
     ]
   },
   {
-    id: 'transport', icon: '🚗', name: 'การเดินทาง',
+    id: 'transport', icon: '🚗', nameKey: 'catTransport',
     tasks: [
-      { id: 't1', name: 'จัดรถเจ้าบ่าวเจ้าสาว', priority: 'high' },
-      { id: 't2', name: 'จัดรถรับส่งแขก VIP', priority: 'med' },
-      { id: 't3', name: 'แจ้ง parking และแผนที่ให้แขก', priority: 'med' },
+      { id: 't1', priority: 'high' }, { id: 't2', priority: 'med' },
+      { id: 't3', priority: 'med' },
     ]
   },
   {
-    id: 'dress', icon: '👗', name: 'ชุดและแต่งหน้า',
+    id: 'dress', icon: '👗', nameKey: 'catDress',
     tasks: [
-      { id: 'dr1', name: 'เลือกและจองชุดเจ้าสาว', priority: 'high' },
-      { id: 'dr2', name: 'เลือกและจองสูทเจ้าบ่าว', priority: 'high' },
-      { id: 'dr3', name: 'จองช่างแต่งหน้าและทำผม', priority: 'high' },
-      { id: 'dr4', name: 'นัด fitting ชุดก่อนวันงาน', priority: 'med' },
+      { id: 'dr1', priority: 'high' }, { id: 'dr2', priority: 'high' },
+      { id: 'dr3', priority: 'high' }, { id: 'dr4', priority: 'med' },
     ]
   },
   {
-    id: 'invite', icon: '💌', name: 'การ์ดเชิญและของชำร่วย',
+    id: 'invite', icon: '💌', nameKey: 'catInvite',
     tasks: [
-      { id: 'i1', name: 'ออกแบบการ์ดเชิญ', priority: 'high' },
-      { id: 'i2', name: 'ส่งการ์ดเชิญล่วงหน้าอย่างน้อย 4 สัปดาห์', priority: 'high' },
-      { id: 'i3', name: 'เลือกของชำร่วย', priority: 'med' },
-      { id: 'i4', name: 'จัดเตรียมของชำร่วยให้ครบ', priority: 'med' },
+      { id: 'i1', priority: 'high' }, { id: 'i2', priority: 'high' },
+      { id: 'i3', priority: 'med' }, { id: 'i4', priority: 'med' },
     ]
   },
 ];
@@ -417,7 +549,7 @@ function renderProgress() {
   const offset = circumference - (pct / 100) * circumference;
   document.getElementById('circleFill').style.strokeDashoffset = offset;
   document.getElementById('pctText').textContent = pct + '%';
-  document.getElementById('progressSub').textContent = done + ' / ' + total + ' งานเสร็จแล้ว';
+  document.getElementById('progressSub').textContent = done + ' / ' + total + ' ' + t('doneSuffix');
   document.getElementById('overallFill').style.width = pct + '%';
   if (pct === 100) document.getElementById('circleWrap').classList.add('celebrate');
   else document.getElementById('circleWrap').classList.remove('celebrate');
@@ -426,24 +558,24 @@ function renderProgress() {
 function renderNextTasks() {
   const pending = [];
   getAllCategories().forEach(cat => {
-    cat.tasks.forEach(t => {
-      if (!checked[t.id]) pending.push({ ...t, catName: cat.name });
+    cat.tasks.forEach(tk => {
+      if (!checked[tk.id]) pending.push({ ...tk, catName: t(cat.nameKey) || cat.name });
     });
   });
   const next3 = pending.slice(0, 3);
   const container = document.getElementById('nextTasksContainer');
   if (next3.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:16px 0;font-size:14px;color:var(--mid)">🎉 ทำครบทุกงานแล้ว!</div>';
+    container.innerHTML = `<div style="text-align:center;padding:16px 0;font-size:14px;color:var(--mid)">${t('allDone')}</div>`;
     return;
   }
-  container.innerHTML = next3.map(t => `
-    <div class="next-task" onclick="toggle('${t.id}')">
-      <div class="next-dot ${t.priority === 'high' ? 'dot-high' : t.priority === 'med' ? 'dot-med' : 'dot-low'}"></div>
+  container.innerHTML = next3.map(tk => `
+    <div class="next-task" onclick="toggle('${tk.id}')">
+      <div class="next-dot ${tk.priority === 'high' ? 'dot-high' : tk.priority === 'med' ? 'dot-med' : 'dot-low'}"></div>
       <div class="next-body">
-        <div class="next-name">${t.name}</div>
-        <div class="next-cat">${t.catName}</div>
+        <div class="next-name">${t(tk.id) || tk.name || tk.id}</div>
+        <div class="next-cat">${tk.catName}</div>
       </div>
-      <div class="next-check ${checked[t.id] ? 'done' : ''}"></div>
+      <div class="next-check ${checked[tk.id] ? 'done' : ''}"></div>
     </div>
   `).join('');
 }
@@ -453,17 +585,18 @@ function renderCategories() {
   container.innerHTML = getAllCategories().map(cat => {
     const { total, done, pct } = getCatStats(cat);
     const isOpen = CATEGORIES.find(c => c.id === cat.id)?._open || false;
-    const tasksHTML = cat.tasks.map(t => {
-      const isCustom = !!t.catId;
+    const tasksHTML = cat.tasks.map(tk => {
+      const isCustom = !!tk.catId;
+      const taskName = isCustom ? tk.name : (t(tk.id) || tk.name || tk.id);
       return `
-        <div class="task-item" onclick="toggle('${t.id}')">
-          <div class="task-cb ${checked[t.id] ? 'done' : ''}"></div>
+        <div class="task-item" onclick="toggle('${tk.id}')">
+          <div class="task-cb ${checked[tk.id] ? 'done' : ''}"></div>
           <div class="task-text">
-            <div class="task-name ${checked[t.id] ? 'done' : ''}">${t.name}</div>
-            ${t.priority === 'high' ? '<span class="task-badge badge-high">สำคัญ</span>' : t.priority === 'med' ? '<span class="task-badge badge-med">ควรทำ</span>' : ''}
-            ${isCustom ? '<span class="task-badge" style="background:#f0f4ff;color:#4f6ef7">ของฉัน</span>' : ''}
+            <div class="task-name ${checked[tk.id] ? 'done' : ''}">${taskName}</div>
+            ${tk.priority === 'high' ? `<span class="task-badge badge-high">${t('badgeHigh')}</span>` : tk.priority === 'med' ? `<span class="task-badge badge-med">${t('badgeMed')}</span>` : ''}
+            ${isCustom ? `<span class="task-badge" style="background:#f0f4ff;color:#4f6ef7">${t('badgeMine')}</span>` : ''}
           </div>
-          ${isCustom ? `<button class="task-del" onclick="deleteCustomTask(event,'${t.id}')">✕</button>` : ''}
+          ${isCustom ? `<button class="task-del" onclick="deleteCustomTask(event,'${tk.id}')">✕</button>` : ''}
         </div>
       `;
     }).join('');
@@ -473,7 +606,7 @@ function renderCategories() {
         <div class="cat-header" onclick="toggleCat('${cat.id}')">
           <div class="cat-icon">${cat.icon}</div>
           <div class="cat-info">
-            <div class="cat-name">${cat.name}</div>
+            <div class="cat-name">${t(cat.nameKey) || cat.name}</div>
             <div class="cat-mini-bar"><div class="cat-mini-fill" style="width:${pct}%"></div></div>
           </div>
           <div class="cat-count">${done}/${total}</div>
@@ -500,7 +633,7 @@ function expandAll() {
 }
 
 function confirmReset() {
-  if (confirm('รีเซ็ต checklist ทั้งหมดหรือไม่?')) {
+  if (confirm(t('confirmReset'))) {
     checked = {};
     saveState();
     renderAll();
@@ -576,6 +709,11 @@ function closeCSClick(e) {
 // Init
 // ─────────────────────────────────────────────
 loadState();
+applyLang();
+if (lang === 'en') {
+  document.getElementById('btnTH').classList.remove('active');
+  document.getElementById('btnEN').classList.add('active');
+}
 renderAll();
 document.getElementById('addTaskCat').addEventListener('change', validateAddForm);
 </script>

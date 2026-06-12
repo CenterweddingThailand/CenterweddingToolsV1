@@ -25,6 +25,9 @@
     .topbar-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
     .topbar-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--navy); }
     .topbar-badge { background: var(--orange-light); color: var(--orange); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; }
+    .lang-toggle { display: flex; align-items: center; gap: 1px; background: var(--bg); border-radius: 8px; padding: 2px; }
+    .lang-btn { background: none; border: none; font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 700; color: var(--light); cursor: pointer; padding: 3px 8px; border-radius: 6px; transition: all .15s; }
+    .lang-btn.active { background: var(--white); color: var(--orange); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
 
     /* ── Coming Soon overlay ── */
     .cs-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; align-items: flex-end; justify-content: center; }
@@ -168,33 +171,37 @@
     <div class="topbar-logo"><img src="./logo.png" alt="Centerwedding" /></div>
     <div class="topbar-divider"></div>
     <div class="topbar-title">Budget Advisor</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btnTH" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
     <div class="topbar-badge">Beta</div>
   </div>
 
   <!-- Input card -->
   <div class="card">
-    <div class="card-title">ข้อมูลงานของคุณ</div>
+    <div class="card-title" data-i18n="cardTitle">ข้อมูลงานของคุณ</div>
     <div class="row2">
       <div class="field">
-        <label>สถานที่จัดงาน</label>
+        <label data-i18n="labelLoc">สถานที่จัดงาน</label>
         <div class="sel-wrap">
           <select id="location">
-            <option value="bangkok">กรุงเทพฯ</option>
-            <option value="pattaya">พัทยา</option>
-            <option value="chiangmai">เชียงใหม่</option>
-            <option value="phuket">ภูเก็ต</option>
-            <option value="khonkaen">ขอนแก่น</option>
-            <option value="hatyai">หาดใหญ่</option>
+            <option value="bangkok" data-i18n-opt="locBangkok">กรุงเทพฯ</option>
+            <option value="pattaya" data-i18n-opt="locPattaya">พัทยา</option>
+            <option value="chiangmai" data-i18n-opt="locChiangmai">เชียงใหม่</option>
+            <option value="phuket" data-i18n-opt="locPhuket">ภูเก็ต</option>
+            <option value="khonkaen" data-i18n-opt="locKhonkaen">ขอนแก่น</option>
+            <option value="hatyai" data-i18n-opt="locHatyai">หาดใหญ่</option>
           </select>
         </div>
       </div>
       <div class="field">
-        <label>ประเภทงาน</label>
+        <label data-i18n="labelType">ประเภทงาน</label>
         <div class="sel-wrap">
           <select id="eventType">
-            <option value="wedding">งานแต่งงาน</option>
+            <option value="wedding" data-i18n-opt="typeWedding">งานแต่งงาน</option>
             <option value="corporate">Corporate Dinner</option>
-            <option value="seminar">สัมมนา</option>
+            <option value="seminar" data-i18n-opt="typeSeminar">สัมมนา</option>
             <option value="birthday">Birthday / Party</option>
             <option value="product">Product Launch</option>
           </select>
@@ -203,14 +210,14 @@
     </div>
     <div class="row2">
       <div class="field">
-        <label>จำนวนแขก (คน)</label>
+        <label data-i18n="labelGuests">จำนวนแขก (คน)</label>
         <div class="num-wrap">
           <input type="number" id="guests" value="100" min="20" max="2000" step="10" />
-          <span class="unit">คน</span>
+          <span class="unit" data-i18n="unitPax">คน</span>
         </div>
       </div>
       <div class="field">
-        <label>ระดับงาน</label>
+        <label data-i18n="labelTier">ระดับงาน</label>
         <div class="sel-wrap">
           <select id="tierSelect">
             <option value="standard">Standard</option>
@@ -226,12 +233,12 @@
       <button class="tier-btn" data-tier="luxury" onclick="setTier('luxury')">Luxury</button>
     </div>
     <button class="btn-calc" onclick="calculate()">
-      <span>คำนวณงบประมาณ</span><span>→</span>
+      <span data-i18n="btnCalc">คำนวณงบประมาณ</span><span>→</span>
     </button>
   </div>
 
   <!-- Loading -->
-  <div class="loading" id="loading"><div class="spin"></div>กำลังคำนวณ...</div>
+  <div class="loading" id="loading"><div class="spin"></div><span data-i18n="loading">กำลังคำนวณ...</span></div>
 
   <!-- Results -->
   <div id="results">
@@ -266,7 +273,7 @@
           <div class="venue-cap" id="vCap">—</div>
         </div>
       </div>
-      <div class="venue-cta" onclick="openModal()">เปรียบเทียบ venue packages →</div>
+      <div class="venue-cta" onclick="openModal()" data-i18n="venueCompare">เปรียบเทียบ venue packages →</div>
     </div>
 
     <!-- Tip -->
@@ -278,7 +285,7 @@
 
     <!-- CTA -->
     <div class="cta-wrap">
-      <button class="btn-cta" onclick="openModal()">📋 ขอใบเสนอราคา venue</button>
+      <button class="btn-cta" onclick="openModal()" data-i18n="btnCta">📋 ขอใบเสนอราคา venue</button>
     </div>
 
   </div>
@@ -302,7 +309,7 @@
       <div class="cs-title" id="csTitle">Coming Soon</div>
       <div class="cs-sub" id="csSub">กำลังพัฒนาฟีเจอร์นี้อยู่ครับ</div>
       <div class="cs-pill">เร็วๆ นี้</div>
-      <button class="cs-close" onclick="document.getElementById('csOverlay').classList.remove('on')">กลับไปที่ Budget Advisor</button>
+      <button class="cs-close" onclick="document.getElementById('csOverlay').classList.remove('on')" data-i18n="csClose">กลับไปที่ Budget Advisor</button>
     </div>
   </div>
 </div>
@@ -311,34 +318,138 @@
 <div class="overlay" id="overlay" onclick="overlayClick(event)">
   <div class="modal">
     <div id="formView">
-      <h3>ขอใบเสนอราคา</h3>
-      <p>ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ</p>
+      <h3 data-i18n="modalTitle">ขอใบเสนอราคา</h3>
+      <p data-i18n="modalSub">ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ</p>
       <div class="mfield">
-        <label>ชื่อ-นามสกุล *</label>
-        <input type="text" id="fName" placeholder="กรอกชื่อของคุณ" />
+        <label data-i18n="labelName">ชื่อ-นามสกุล *</label>
+        <input type="text" id="fName" placeholder="กรอกชื่อของคุณ" data-i18n-ph="phName" />
       </div>
       <div class="mfield">
-        <label>เบอร์โทรศัพท์ *</label>
+        <label data-i18n="labelPhone">เบอร์โทรศัพท์ *</label>
         <input type="tel" id="fPhone" placeholder="08X-XXX-XXXX" />
-        <div class="hint">ใช้ติดต่อกลับจากทีมงาน</div>
+        <div class="hint" data-i18n="hintPhone">ใช้ติดต่อกลับจากทีมงาน</div>
       </div>
       <div class="mfield">
-        <label>LINE ID (ถ้ามี)</label>
+        <label data-i18n="labelLine">LINE ID (ถ้ามี)</label>
         <input type="text" id="fLine" placeholder="@yourlineid" />
       </div>
-      <button class="btn-submit" onclick="submitLead()">ส่งคำขอ →</button>
-      <button class="btn-cancel" onclick="closeModal()">ยกเลิก</button>
+      <button class="btn-submit" onclick="submitLead()" data-i18n="btnSubmit">ส่งคำขอ →</button>
+      <button class="btn-cancel" onclick="closeModal()" data-i18n="btnCancel">ยกเลิก</button>
     </div>
     <div id="successView" class="success-view" style="display:none">
       <div class="icon">✅</div>
-      <h3>ส่งคำขอสำเร็จ!</h3>
-      <p>ทีม Centerwedding จะติดต่อกลับ<br/>ภายใน 1 วันทำการ<br/><br/>ขอบคุณที่ไว้วางใจเรา 💛</p>
-      <button class="btn-submit" onclick="closeModal()" style="margin-top:20px">ปิด</button>
+      <h3 data-i18n="successTitle">ส่งคำขอสำเร็จ!</h3>
+      <p data-i18n="successMsg">ทีม Centerwedding จะติดต่อกลับ<br/>ภายใน 1 วันทำการ<br/><br/>ขอบคุณที่ไว้วางใจเรา 💛</p>
+      <button class="btn-submit" onclick="closeModal()" style="margin-top:20px" data-i18n="btnClose">ปิด</button>
     </div>
   </div>
 </div>
 
 <script>
+// ─────────────────────────────────────────────
+// LANGUAGE
+// ─────────────────────────────────────────────
+let lang = localStorage.getItem('cw_lang') || 'th';
+
+const T = {
+  th: {
+    cardTitle:'ข้อมูลงานของคุณ', labelLoc:'สถานที่จัดงาน', labelType:'ประเภทงาน',
+    labelGuests:'จำนวนแขก (คน)', unitPax:'คน', labelTier:'ระดับงาน',
+    btnCalc:'คำนวณงบประมาณ', loading:'กำลังคำนวณ...',
+    heroRange:'ช่วง', tagPax:'คน',
+    venueCompare:'เปรียบเทียบ venue packages →',
+    btnCta:'📋 ขอใบเสนอราคา venue',
+    locBangkok:'กรุงเทพฯ', locPattaya:'พัทยา', locChiangmai:'เชียงใหม่',
+    locPhuket:'ภูเก็ต', locKhonkaen:'ขอนแก่น', locHatyai:'หาดใหญ่',
+    typeWedding:'งานแต่งงาน', typeSeminar:'สัมมนา',
+    modalTitle:'ขอใบเสนอราคา',
+    modalSub:'ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ',
+    labelName:'ชื่อ-นามสกุล *', labelPhone:'เบอร์โทรศัพท์ *', labelLine:'LINE ID (ถ้ามี)',
+    phName:'กรอกชื่อของคุณ', hintPhone:'ใช้ติดต่อกลับจากทีมงาน',
+    btnSubmit:'ส่งคำขอ →', btnCancel:'ยกเลิก',
+    alertFill:'กรุณากรอกชื่อและเบอร์โทรศัพท์',
+    successTitle:'ส่งคำขอสำเร็จ!',
+    successMsg:'ทีม Centerwedding จะติดต่อกลับ<br/>ภายใน 1 วันทำการ<br/><br/>ขอบคุณที่ไว้วางใจเรา 💛',
+    btnClose:'ปิด', csClose:'กลับไปที่ Budget Advisor',
+    splitDress:'ชุด & แต่งหน้า', splitCeremony:'พิธีมงคล',
+  },
+  en: {
+    cardTitle:'Your Event Details', labelLoc:'Venue City', labelType:'Event Type',
+    labelGuests:'No. of Guests', unitPax:'pax', labelTier:'Package Tier',
+    btnCalc:'Calculate Budget', loading:'Calculating...',
+    heroRange:'Range', tagPax:'guests',
+    venueCompare:'Compare venue packages →',
+    btnCta:'📋 Request Venue Quotation',
+    locBangkok:'Bangkok', locPattaya:'Pattaya', locChiangmai:'Chiang Mai',
+    locPhuket:'Phuket', locKhonkaen:'Khon Kaen', locHatyai:'Hat Yai',
+    typeWedding:'Wedding', typeSeminar:'Seminar',
+    modalTitle:'Request Quotation',
+    modalSub:'Our team will contact you within 1 business day.',
+    labelName:'Full Name *', labelPhone:'Phone Number *', labelLine:'LINE ID (optional)',
+    phName:'Enter your name', hintPhone:'For our team to contact you',
+    btnSubmit:'Submit →', btnCancel:'Cancel',
+    alertFill:'Please enter your name and phone number.',
+    successTitle:'Request Sent!',
+    successMsg:'Our team will contact you<br/>within 1 business day.<br/><br/>Thank you for trusting us 💛',
+    btnClose:'Close', csClose:'Back to Budget Advisor',
+    splitDress:'Dress & Makeup', splitCeremony:'Ceremony',
+  }
+};
+
+const TIPS_LANG = {
+  th: {
+    wedding:  'ควรตั้ง <strong>งบสำรอง 10–15%</strong> สำหรับค่าสินสอด ค่าฤกษ์มงคล service charge และค่าใช้จ่ายฉุกเฉิน',
+    corporate:'ควรบวก <strong>5–10% สำรอง</strong> สำหรับ service charge, corkage fee และ overtime ของทีมงาน',
+    seminar:  'จองห้องล่วงหน้า <strong>อย่างน้อย 6–8 สัปดาห์</strong> เพื่อให้ได้ห้องที่มี AV equipment ครบถ้วน',
+    birthday: 'กำหนด <strong>dress code</strong> และมีกิจกรรม interactive ช่วยสร้างประสบการณ์ที่จดจำได้',
+    product:  'งบ <strong>Production & Staging</strong> ส่งผลโดยตรงต่อคุณภาพสื่อและ media coverage หลังงาน',
+  },
+  en: {
+    wedding:  'Set aside a <strong>10–15% contingency</strong> for dowry, auspicious fees, service charges, and unexpected costs.',
+    corporate:'Add a <strong>5–10% buffer</strong> for service charges, corkage fees, and staff overtime.',
+    seminar:  'Book the venue <strong>at least 6–8 weeks</strong> ahead to secure a room with full AV equipment.',
+    birthday: 'Define a <strong>dress code</strong> and plan interactive activities to create a memorable experience.',
+    product:  'The <strong>Production & Staging</strong> budget directly impacts media quality and post-event coverage.',
+  }
+};
+
+const SPLITS_LANG = {
+  wedding:   { splitDress: true, splitCeremony: true },
+};
+
+function t(key) { return T[lang][key] ?? T.th[key] ?? key; }
+
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('cw_lang', l);
+  document.getElementById('btnTH').classList.toggle('active', l === 'th');
+  document.getElementById('btnEN').classList.toggle('active', l === 'en');
+  applyLang();
+  // re-render results if visible
+  if (document.getElementById('results').classList.contains('on') && calcData.loc) {
+    const { loc, type, guests, tier, budget } = calcData;
+    const [rLo, rHi] = TIER_RANGE[tier];
+    renderResults(budget, Math.round(budget * rLo / 1000) * 1000, Math.round(budget * rHi / 1000) * 1000, loc, type, guests, tier);
+  }
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (el.tagName === 'P' || el.classList.contains('success-view') || el.dataset.i18n === 'successMsg') {
+      el.innerHTML = t(key);
+    } else {
+      el.textContent = t(key);
+    }
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    el.placeholder = t(el.dataset.i18nPh);
+  });
+  document.querySelectorAll('[data-i18n-opt]').forEach(el => {
+    el.textContent = t(el.dataset.i18nOpt);
+  });
+}
+
 // ─────────────────────────────────────────────
 // CONFIG — แก้ไขหลัง deploy Apps Script
 // ─────────────────────────────────────────────
@@ -357,23 +468,16 @@ const BASE = {
   product:   { standard: 1700, premium: 3000, luxury: 5000 },
 };
 const LOC_MULTI  = { bangkok:1.00, pattaya:0.90, chiangmai:0.82, phuket:1.12, khonkaen:0.75, hatyai:0.78 };
-const LOC_LABEL  = { bangkok:'กรุงเทพฯ', pattaya:'พัทยา', chiangmai:'เชียงใหม่', phuket:'ภูเก็ต', khonkaen:'ขอนแก่น', hatyai:'หาดใหญ่' };
+const LOC_KEY    = { bangkok:'locBangkok', pattaya:'locPattaya', chiangmai:'locChiangmai', phuket:'locPhuket', khonkaen:'locKhonkaen', hatyai:'locHatyai' };
 const TIER_MULTI = { standard:1.0, premium:1.0, luxury:1.0 };
 const TIER_RANGE = { standard:[0.85,1.15], premium:[0.88,1.18], luxury:[0.85,1.20] };
 
 const SPLITS = {
-  wedding:   [['Venue & F&B','#1C2B3A',45],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['ชุด & แต่งหน้า','#e8a87c',10],['พิธีมงคล','#c9a23a',10],['Other','#d1d5db',8]],
+  wedding:   [['Venue & F&B','#1C2B3A',45],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['splitDress','#e8a87c',10],['splitCeremony','#c9a23a',10],['Other','#d1d5db',8]],
   corporate: [['Venue & F&B','#1C2B3A',65],['Decoration','#4a6fa5',12],['Photo & Video','#D81B7A',8],['Entertainment','#e8a87c',7],['Other','#d1d5db',8]],
   seminar:   [['Venue & AV','#1C2B3A',50],['F&B','#4a6fa5',20],['Materials','#D81B7A',12],['Speaker','#e8a87c',10],['Other','#d1d5db',8]],
   birthday:  [['Venue & F&B','#1C2B3A',50],['Decoration','#4a6fa5',20],['Entertainment','#D81B7A',15],['Photo','#e8a87c',8],['Other','#d1d5db',7]],
   product:   [['Venue & F&B','#1C2B3A',40],['Production','#4a6fa5',25],['PR & Media','#D81B7A',15],['Decoration','#e8a87c',12],['Other','#d1d5db',8]],
-};
-const TIPS = {
-  wedding:  'ควรตั้ง <strong>งบสำรอง 10–15%</strong> สำหรับค่าสินสอด ค่าฤกษ์มงคล service charge และค่าใช้จ่ายฉุกเฉิน',
-  corporate:'ควรบวก <strong>5–10% สำรอง</strong> สำหรับ service charge, corkage fee และ overtime ของทีมงาน',
-  seminar:  'จองห้องล่วงหน้า <strong>อย่างน้อย 6–8 สัปดาห์</strong> เพื่อให้ได้ห้องที่มี AV equipment ครบถ้วน',
-  birthday: 'กำหนด <strong>dress code</strong> และมีกิจกรรม interactive ช่วยสร้างประสบการณ์ที่จดจำได้',
-  product:  'งบ <strong>Production & Staging</strong> ส่งผลโดยตรงต่อคุณภาพสื่อและ media coverage หลังงาน',
 };
 const VENUES = {
   bangkok:   [{n:'The Grand Ballroom',l:'สุขุมวิท กรุงเทพฯ',c:'80–250 คน',mn:280000,mx:420000},{n:'Riverside Event Hall',l:'เจริญนคร กรุงเทพฯ',c:'120–300 คน',mn:200000,mx:350000},{n:'Crystal Hall Bangkok',l:'รัชดา กรุงเทพฯ',c:'200–500 คน',mn:380000,mx:600000}],
@@ -452,15 +556,16 @@ function calculate() {
 
 function renderResults(mid, lo, hi, loc, type, guests, tier) {
   document.getElementById('heroAmt').textContent = fmt(mid);
-  document.getElementById('heroRange').textContent = `ช่วง: ฿${fmt(lo)} – ฿${fmt(hi)}`;
+  document.getElementById('heroRange').textContent = `${t('heroRange')}: ฿${fmt(lo)} – ฿${fmt(hi)}`;
   document.getElementById('heroTags').innerHTML = `
-    <span class="tag">📍 ${LOC_LABEL[loc]}</span>
+    <span class="tag">📍 ${t(LOC_KEY[loc])}</span>
     <span class="tag">🍽️ ${document.querySelector('#eventType option:checked').text}</span>
-    <span class="tag">👥 ${guests} คน</span>
+    <span class="tag">👥 ${guests} ${t('tagPax')}</span>
   `;
 
   // Split
-  const rows = SPLITS[type].map(([name, color, pct]) => {
+  const rows = SPLITS[type].map(([nameKey, color, pct]) => {
+    const name = nameKey.startsWith('split') ? t(nameKey) : nameKey;
     const amt = Math.round(mid * pct / 100 / 500) * 500;
     return `<div class="split-row">
       <div class="split-name">${name}</div>
@@ -482,8 +587,8 @@ function renderResults(mid, lo, hi, loc, type, guests, tier) {
   document.getElementById('vPrice').textContent = `THB ${fmt(v.mn)} – ${fmt(v.mx)}`;
   document.getElementById('vCap').textContent   = `Capacity ${v.c}`;
 
-  // Tip & source
-  document.getElementById('tipText').innerHTML  = TIPS[type];
+  // Tip
+  document.getElementById('tipText').innerHTML = TIPS_LANG[lang][type] || TIPS_LANG.th[type];
 }
 
 // ─────────────────────────────────────────────
@@ -501,7 +606,7 @@ function overlayClick(e) { if (e.target === document.getElementById('overlay')) 
 function submitLead() {
   const name  = document.getElementById('fName').value.trim();
   const phone = document.getElementById('fPhone').value.trim();
-  if (!name || !phone) { alert('กรุณากรอกชื่อและเบอร์โทรศัพท์'); return; }
+  if (!name || !phone) { alert(t('alertFill')); return; }
 
   const payload = {
     ...calcData,
@@ -575,6 +680,11 @@ function closeCS(e) {
 // ─────────────────────────────────────────────
 // Init
 // ─────────────────────────────────────────────
+applyLang();
+if (lang === 'en') {
+  document.getElementById('btnTH').classList.remove('active');
+  document.getElementById('btnEN').classList.add('active');
+}
 initLiff();
 trackEvent('open', {});
 </script>
