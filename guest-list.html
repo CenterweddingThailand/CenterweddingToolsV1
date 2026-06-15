@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>Guest List | CW Club</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --pink:#D81B7A;--pink-light:#fde8f3;--pink-dark:#aa1060;
+      --navy:#1C2B3A;--navy2:#2e4057;
+      --text:#1a1a1a;--mid:#6b7280;--light:#9ca3af;
+      --bg:#fdf5f9;--white:#fff;--border:#f0d6e8;
+      --green:#15803d;--green-bg:#dcfce7;
+      --red:#dc2626;--red-bg:#fee2e2;
+      --blue:#2563eb;--blue-bg:#dbeafe;
+    }
+    body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);}
+
+    /* ── Wrap ── */
+    .wrap{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);transition:max-width .25s ease;}
+    .wrap.table-mode{max-width:900px;}
+
+    /* ── Topbar ── */
+    .topbar{background:var(--white);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
+    .topbar-logo img{height:28px;max-width:88px;width:auto;display:block;object-fit:contain;}
+    .topbar-divider{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+    .topbar-title{font-size:14px;font-weight:700;flex:1;color:var(--navy);min-width:0;}
+    .lang-toggle{display:flex;align-items:center;flex-shrink:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;}
+    .lang-btn{background:var(--white);border:none;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:var(--light);cursor:pointer;padding:5px 11px;transition:all .15s;white-space:nowrap;}
+    .lang-btn:first-child{border-right:1.5px solid var(--border);}
+    .lang-btn.active{background:var(--pink);color:#fff;}
+
+    /* ── Stats bar ── */
+    .stats-bar{display:flex;gap:8px;padding:12px 14px;background:var(--white);border-bottom:1px solid var(--border);}
+    .stat-pill{flex:1;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 4px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;transition:all .15s;background:var(--bg);}
+    .stat-pill.on{border-color:var(--pink);background:var(--pink-light);}
+    .stat-count{font-size:16px;font-weight:800;color:var(--navy);}
+    .stat-pill.on .stat-count{color:var(--pink);}
+    .stat-label{font-size:11px;color:var(--mid);}
+    .stat-pill.on .stat-label{color:var(--pink-dark);}
+    .stat-icon{font-size:13px;}
+
+    /* ── Toolbar ── */
+    .toolbar{padding:10px 14px 8px;background:var(--white);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:8px;}
+    .toolbar-r1{display:flex;align-items:center;gap:8px;}
+    .toolbar-r2{display:flex;align-items:center;gap:8px;}
+    .view-toggle{display:flex;border:1.5px solid var(--border);border-radius:9px;overflow:hidden;flex-shrink:0;}
+    .view-btn{background:var(--bg);border:none;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:var(--mid);padding:6px 11px;cursor:pointer;transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:4px;}
+    .view-btn:first-child{border-right:1.5px solid var(--border);}
+    .view-btn.active{background:var(--navy);color:#fff;}
+    .search-input{flex:1;min-width:0;padding:8px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'Sarabun',sans-serif;font-size:13px;color:var(--text);background:var(--bg);outline:none;}
+    .search-input:focus{border-color:var(--pink);background:var(--white);}
+    .btn-csv{padding:7px 10px;border:1.5px solid var(--border);border-radius:9px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:12px;font-weight:600;color:var(--mid);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all .15s;}
+    .btn-csv:hover{border-color:var(--pink);color:var(--pink);}
+    .btn-add-main{padding:7px 14px;border:none;border-radius:9px;background:var(--pink);font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;color:#fff;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:opacity .15s;}
+    .btn-add-main:active{opacity:.8;}
+
+    @media(min-width:640px){
+      .toolbar{flex-direction:row;align-items:center;flex-wrap:wrap;}
+      .toolbar-r1{flex-shrink:0;}
+      .toolbar-r2{flex:1;min-width:0;}
+    }
+
+    /* ── Empty state ── */
+    .empty-state{padding:64px 24px;text-align:center;color:var(--mid);}
+    .empty-icon{font-size:54px;margin-bottom:14px;}
+    .empty-text{font-size:14px;line-height:1.9;white-space:pre-line;}
+
+    /* ── Status badges ── */
+    .status-badge{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+    .badge-waiting{background:var(--blue-bg);color:var(--blue);}
+    .badge-invited{background:var(--green-bg);color:var(--green);}
+
+    /* ── CARD VIEW ── */
+    .card-list{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+    .guest-card{background:var(--white);border-radius:14px;padding:14px 15px;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border);}
+    .gc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;}
+    .gc-name{font-size:15px;font-weight:700;color:var(--navy);flex:1;min-width:0;word-break:break-word;}
+    .gc-meta{margin-bottom:10px;}
+    .gc-info{font-size:13px;color:var(--mid);margin-bottom:3px;display:flex;align-items:center;gap:6px;}
+    .gc-actions{display:flex;gap:6px;}
+    .btn-toggle{flex:1;min-width:0;padding:6px 8px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:11px;font-weight:600;color:var(--mid);cursor:pointer;text-align:center;transition:all .15s;}
+    .btn-toggle:hover{border-color:var(--pink);color:var(--pink);}
+    .btn-icon{width:32px;height:32px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .15s;}
+    .btn-icon.edit:hover{border-color:var(--pink);background:var(--pink-light);}
+    .btn-icon.danger:hover{border-color:var(--red);background:var(--red-bg);}
+
+    /* ── TABLE VIEW ── */
+    .table-wrap{margin:12px 14px;background:var(--white);border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);border:1px solid var(--border);overflow-x:auto;}
+    .guest-table{width:100%;border-collapse:collapse;min-width:500px;}
+    .guest-table th{font-size:11px;font-weight:700;color:var(--mid);text-align:left;padding:10px 12px;border-bottom:1.5px solid var(--border);background:var(--bg);white-space:nowrap;text-transform:uppercase;letter-spacing:.3px;}
+    .guest-table td{font-size:13px;padding:11px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+    .guest-table tr:last-child td{border-bottom:none;}
+    .guest-table tbody tr:hover td{background:var(--pink-light);}
+    .td-num{color:var(--light);font-size:12px;width:36px;text-align:center;}
+    .td-name{font-weight:600;color:var(--navy);}
+    .td-light{color:var(--mid);}
+    .td-action{width:110px;}
+    .tbl-actions{display:flex;gap:4px;align-items:center;justify-content:flex-end;}
+    .tbl-btn{padding:4px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:12px;cursor:pointer;transition:all .15s;line-height:1;}
+    .tbl-btn.edit:hover{border-color:var(--pink);color:var(--pink);}
+    .tbl-btn.danger:hover{border-color:var(--red);color:var(--red);}
+
+    /* ── Add/Edit sheet ── */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;align-items:flex-end;justify-content:center;}
+    .overlay.on{display:flex;}
+    .add-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:480px;animation:up .28s ease;}
+    .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 18px;}
+    .sheet-title{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:18px;}
+    .field-group{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+    .field-input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:11px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s;}
+    .field-input:focus{border-color:var(--pink);background:var(--white);}
+    .sheet-btns{display:flex;gap:10px;}
+    .btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--mid);cursor:pointer;}
+    .btn-save{flex:2;padding:12px;border:none;border-radius:12px;background:var(--pink);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;transition:background .15s;}
+    .btn-save:hover{background:var(--pink-dark);}
+
+    /* ── Delete modal ── */
+    .del-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:80;align-items:center;justify-content:center;}
+    .del-overlay.on{display:flex;}
+    .del-modal{background:var(--white);border-radius:18px;padding:24px 20px;width:calc(100% - 40px);max-width:320px;text-align:center;animation:pop .22s ease;}
+    .del-icon{font-size:36px;margin-bottom:10px;}
+    .del-title{font-size:16px;font-weight:800;color:var(--navy);margin-bottom:5px;}
+    .del-name{font-size:14px;color:var(--mid);margin-bottom:22px;word-break:break-word;}
+    .del-btns{display:flex;gap:10px;}
+    .btn-del-no{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--mid);cursor:pointer;}
+    .btn-del-yes{flex:1;padding:11px;border:none;border-radius:10px;background:var(--red);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;}
+
+    /* ── CS overlay ── */
+    .cs-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;align-items:flex-end;justify-content:center;}
+    .cs-overlay.on{display:flex;}
+    .cs-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:32px 24px 44px;width:100%;max-width:430px;text-align:center;animation:up .3s ease;}
+    .cs-icon{font-size:42px;margin-bottom:12px;}
+    .cs-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+    .cs-sub{font-size:14px;color:var(--mid);line-height:1.6;margin-bottom:24px;}
+    .cs-pill{display:inline-block;background:var(--pink-light);color:var(--pink);font-size:13px;font-weight:700;padding:6px 20px;border-radius:999px;margin-bottom:20px;}
+    .cs-close{width:100%;padding:13px;background:var(--pink);color:#fff;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+    /* ── Bottom nav ── */
+    .bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 16px;z-index:20;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--light);cursor:pointer;flex:1;padding:4px 0;}
+    .nav-item.on{color:var(--pink);}
+    .ni{font-size:20px;}
+    .spacer{height:80px;}
+
+    @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+    @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+  </style>
+</head>
+<body>
+
+<div class="wrap" id="wrap">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <a href="index.html"><img src="./logo.png" alt="CW Club"/></a>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title" id="pageTitle">รายชื่อแขก</div>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-bar">
+    <div class="stat-pill on" id="filterAll" onclick="setFilter('all')">
+      <span class="stat-count" id="statTotal">0</span>
+      <span class="stat-label" id="lblAll">ทั้งหมด</span>
+    </div>
+    <div class="stat-pill" id="filterWaiting" onclick="setFilter('waiting')">
+      <span class="stat-icon">⏳</span>
+      <span class="stat-count" id="statWaiting">0</span>
+      <span class="stat-label" id="lblWaiting">รอการ์ด</span>
+    </div>
+    <div class="stat-pill" id="filterInvited" onclick="setFilter('invited')">
+      <span class="stat-icon">✉️</span>
+      <span class="stat-count" id="statInvited">0</span>
+      <span class="stat-label" id="lblInvited">ส่งการ์ดแล้ว</span>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="toolbar-r1">
+      <div class="view-toggle">
+        <button class="view-btn" id="btnCardView" onclick="setView('card')">
+          <span>≡</span><span id="lblCardView">การ์ด</span>
+        </button>
+        <button class="view-btn" id="btnTableView" onclick="setView('table')">
+          <span>▦</span><span id="lblTableView">ตาราง</span>
+        </button>
+      </div>
+      <button class="btn-add-main" id="btnAddGuest" onclick="openSheet()">+ เพิ่มแขก</button>
+    </div>
+    <div class="toolbar-r2">
+      <input class="search-input" type="search" id="searchInput" placeholder="ค้นหาชื่อ..." oninput="onSearch(this.value)"/>
+      <button class="btn-csv" id="btnCSV" onclick="exportCSV()">↓ CSV</button>
+    </div>
+  </div>
+
+  <!-- Guest content -->
+  <div id="guestContent"></div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- Bottom nav -->
+<div class="bottomnav">
+  <div class="nav-item" onclick="showCS('Home','จัดการงานอีเวนต์ทั้งหมดในที่เดียว')"><div class="ni">🏠</div><span id="navHome">Home</span></div>
+  <div class="nav-item on"><div class="ni">👥</div><span id="navGuests">Guests</span></div>
+  <div class="nav-item" onclick="location.href='checklist.html'"><div class="ni">✅</div><span id="navChecklist">Checklist</span></div>
+  <div class="nav-item" onclick="location.href='budget-advisor.html'"><div class="ni">💰</div><span id="navBudget">Budget</span></div>
+  <div class="nav-item" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')"><div class="ni">📍</div><span id="navVenues">Venues</span></div>
+</div>
+
+<!-- Add/Edit sheet -->
+<div class="overlay" id="sheetOverlay" onclick="closeSheet()">
+  <div class="add-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">เพิ่มแขกใหม่</div>
+    <div class="field-group">
+      <input class="field-input" type="text" id="inputName" autocomplete="name"/>
+      <input class="field-input" type="tel" id="inputPhone" autocomplete="tel"/>
+      <input class="field-input" type="email" id="inputEmail" autocomplete="email"/>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancel" onclick="closeSheet()">ยกเลิก</button>
+      <button class="btn-save" id="btnSave" onclick="saveGuest()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete confirm -->
+<div class="del-overlay" id="delOverlay">
+  <div class="del-modal">
+    <div class="del-icon">🗑️</div>
+    <div class="del-title" id="delTitle">ลบแขกคนนี้?</div>
+    <div class="del-name" id="delName"></div>
+    <div class="del-btns">
+      <button class="btn-del-no" id="btnDelNo" onclick="closeDelete()">ยกเลิก</button>
+      <button class="btn-del-yes" id="btnDelYes" onclick="confirmDelete()">ลบ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Coming Soon overlay -->
+<div class="cs-overlay" id="csOverlay" onclick="closeCS()">
+  <div class="cs-sheet" onclick="event.stopPropagation()">
+    <div class="cs-icon">🔮</div>
+    <div class="cs-title" id="csTitle">Coming Soon</div>
+    <div class="cs-sub" id="csSub"></div>
+    <div class="cs-pill">เร็วๆ นี้</div>
+    <button class="cs-close" onclick="closeCS()">ปิด</button>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let guests = [];
+let lang = 'th';
+let currentView = 'card';
+let currentFilter = 'all';
+let searchQuery = '';
+let editingId = null;
+let deletingId = null;
+
+// ── Translations ───────────────────────────────────────────────────────────
+const T = {
+  th: {
+    title:'รายชื่อแขก',
+    lblAll:'ทั้งหมด', lblWaiting:'รอการ์ด', lblInvited:'ส่งการ์ดแล้ว',
+    addGuest:'+ เพิ่มแขก', searchPh:'ค้นหาชื่อ...', exportCSV:'↓ CSV',
+    lblCardView:'การ์ด', lblTableView:'ตาราง',
+    sheetAdd:'เพิ่มแขกใหม่', sheetEdit:'แก้ไขข้อมูลแขก',
+    namePh:'ชื่อ-นามสกุล *', phonePh:'เบอร์โทรศัพท์', emailPh:'อีเมล',
+    save:'บันทึก', cancel:'ยกเลิก',
+    statusWaiting:'⏳ รอการ์ด', statusInvited:'✉️ ส่งการ์ดแล้ว',
+    markInvited:'ทำเครื่องหมายส่งการ์ดแล้ว', markWaiting:'เปลี่ยนเป็นรอการ์ด',
+    delTitle:'ลบแขกคนนี้?', delYes:'ลบ', delNo:'ยกเลิก',
+    emptyAll:'ยังไม่มีรายชื่อแขก\nกด "+ เพิ่มแขก" เพื่อเริ่มต้น',
+    emptyFilter:'ไม่พบรายชื่อที่ตรงกัน',
+    colNum:'#', colName:'ชื่อ-นามสกุล', colPhone:'เบอร์โทร', colEmail:'อีเมล', colStatus:'สถานะ',
+    nameRequired:'กรุณาใส่ชื่อแขก',
+    navHome:'Home', navGuests:'Guests', navChecklist:'Checklist', navBudget:'Budget', navVenues:'Venues',
+  },
+  en: {
+    title:'Guest List',
+    lblAll:'Total', lblWaiting:'Waiting', lblInvited:'Invited',
+    addGuest:'+ Add Guest', searchPh:'Search name...', exportCSV:'↓ CSV',
+    lblCardView:'Card', lblTableView:'Table',
+    sheetAdd:'Add New Guest', sheetEdit:'Edit Guest',
+    namePh:'Full Name *', phonePh:'Phone Number', emailPh:'Email Address',
+    save:'Save', cancel:'Cancel',
+    statusWaiting:'⏳ Waiting', statusInvited:'✉️ Invited',
+    markInvited:'Mark as Invited', markWaiting:'Mark as Waiting',
+    delTitle:'Delete this guest?', delYes:'Delete', delNo:'Cancel',
+    emptyAll:'No guests yet\nTap "+ Add Guest" to get started',
+    emptyFilter:'No guests found',
+    colNum:'#', colName:'Full Name', colPhone:'Phone', colEmail:'Email', colStatus:'Status',
+    nameRequired:'Please enter guest name',
+    navHome:'Home', navGuests:'Guests', navChecklist:'Checklist', navBudget:'Budget', navVenues:'Venues',
+  }
+};
+function t(k){ return T[lang][k] || k; }
+
+// ── Storage ────────────────────────────────────────────────────────────────
+function loadGuests(){
+  try{ guests = JSON.parse(localStorage.getItem('cw_guests')||'[]'); }
+  catch(e){ guests = []; }
+}
+function saveGuests(){ localStorage.setItem('cw_guests', JSON.stringify(guests)); }
+
+// ── Lang ───────────────────────────────────────────────────────────────────
+function setLang(l){
+  lang = l;
+  localStorage.setItem('cw_lang', l);
+  document.getElementById('btnTH').classList.toggle('active', l==='th');
+  document.getElementById('btnEN').classList.toggle('active', l==='en');
+  applyLang();
+  render();
+}
+
+function applyLang(){
+  document.getElementById('pageTitle').textContent = t('title');
+  document.getElementById('lblAll').textContent = t('lblAll');
+  document.getElementById('lblWaiting').textContent = t('lblWaiting');
+  document.getElementById('lblInvited').textContent = t('lblInvited');
+  document.getElementById('btnAddGuest').textContent = t('addGuest');
+  document.getElementById('searchInput').placeholder = t('searchPh');
+  document.getElementById('btnCSV').textContent = t('exportCSV');
+  document.getElementById('lblCardView').textContent = t('lblCardView');
+  document.getElementById('lblTableView').textContent = t('lblTableView');
+  document.getElementById('inputName').placeholder = t('namePh');
+  document.getElementById('inputPhone').placeholder = t('phonePh');
+  document.getElementById('inputEmail').placeholder = t('emailPh');
+  document.getElementById('btnCancel').textContent = t('cancel');
+  document.getElementById('btnSave').textContent = t('save');
+  document.getElementById('btnDelNo').textContent = t('delNo');
+  document.getElementById('btnDelYes').textContent = t('delYes');
+  document.getElementById('navHome').textContent = t('navHome');
+  document.getElementById('navGuests').textContent = t('navGuests');
+  document.getElementById('navChecklist').textContent = t('navChecklist');
+  document.getElementById('navBudget').textContent = t('navBudget');
+  document.getElementById('navVenues').textContent = t('navVenues');
+}
+
+// ── View ───────────────────────────────────────────────────────────────────
+function setView(v){
+  currentView = v;
+  localStorage.setItem('cw_guest_view', v);
+  document.getElementById('btnCardView').classList.toggle('active', v==='card');
+  document.getElementById('btnTableView').classList.toggle('active', v==='table');
+  document.getElementById('wrap').classList.toggle('table-mode', v==='table');
+  render();
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────────
+function setFilter(f){
+  currentFilter = f;
+  document.getElementById('filterAll').classList.toggle('on', f==='all');
+  document.getElementById('filterWaiting').classList.toggle('on', f==='waiting');
+  document.getElementById('filterInvited').classList.toggle('on', f==='invited');
+  render();
+}
+
+// ── Search ─────────────────────────────────────────────────────────────────
+function onSearch(v){ searchQuery = v.trim().toLowerCase(); render(); }
+
+// ── Filtered list ──────────────────────────────────────────────────────────
+function filteredGuests(){
+  return guests.filter(g => {
+    const matchFilter = currentFilter==='all' || g.status===currentFilter;
+    const q = searchQuery;
+    const matchSearch = !q
+      || g.name.toLowerCase().includes(q)
+      || (g.phone||'').includes(q)
+      || (g.email||'').toLowerCase().includes(q);
+    return matchFilter && matchSearch;
+  });
+}
+
+// ── Stats ──────────────────────────────────────────────────────────────────
+function updateStats(){
+  document.getElementById('statTotal').textContent   = guests.length;
+  document.getElementById('statWaiting').textContent = guests.filter(g=>g.status==='waiting').length;
+  document.getElementById('statInvited').textContent = guests.filter(g=>g.status==='invited').length;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render(){
+  updateStats();
+  const list = filteredGuests();
+  const el = document.getElementById('guestContent');
+
+  if(list.length === 0){
+    const msg = guests.length===0 ? t('emptyAll') : t('emptyFilter');
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">👥</div><div class="empty-text">${msg}</div></div>`;
+    return;
+  }
+
+  if(currentView === 'card'){
+    el.innerHTML = `<div class="card-list">${list.map(cardHTML).join('')}</div>`;
+  } else {
+    el.innerHTML = tableHTML(list);
+  }
+}
+
+function statusBadge(status){
+  return status==='invited'
+    ? `<span class="status-badge badge-invited">${t('statusInvited')}</span>`
+    : `<span class="status-badge badge-waiting">${t('statusWaiting')}</span>`;
+}
+
+function cardHTML(g){
+  const toggleLabel = g.status==='waiting' ? t('markInvited') : t('markWaiting');
+  return `
+    <div class="guest-card">
+      <div class="gc-head">
+        <div class="gc-name">${esc(g.name)}</div>
+        ${statusBadge(g.status)}
+      </div>
+      <div class="gc-meta">
+        ${g.phone ? `<div class="gc-info">📞 ${esc(g.phone)}</div>` : ''}
+        ${g.email ? `<div class="gc-info">📧 ${esc(g.email)}</div>` : ''}
+      </div>
+      <div class="gc-actions">
+        <button class="btn-toggle" onclick="toggleStatus('${g.id}')">${esc(toggleLabel)}</button>
+        <button class="btn-icon edit" onclick="openEdit('${g.id}')" title="แก้ไข">✏️</button>
+        <button class="btn-icon danger" onclick="openDelete('${g.id}')" title="ลบ">🗑️</button>
+      </div>
+    </div>`;
+}
+
+function tableHTML(list){
+  const rows = list.map((g,i) => `
+    <tr>
+      <td class="td-num">${i+1}</td>
+      <td class="td-name">${esc(g.name)}</td>
+      <td class="td-light">${g.phone ? esc(g.phone) : '<span style="color:var(--border)">—</span>'}</td>
+      <td class="td-light">${g.email ? esc(g.email) : '<span style="color:var(--border)">—</span>'}</td>
+      <td>${statusBadge(g.status)}</td>
+      <td class="td-action">
+        <div class="tbl-actions">
+          <button class="tbl-btn" onclick="toggleStatus('${g.id}')" title="${g.status==='waiting'?t('markInvited'):t('markWaiting')}">⇄</button>
+          <button class="tbl-btn edit" onclick="openEdit('${g.id}')">✏️</button>
+          <button class="tbl-btn danger" onclick="openDelete('${g.id}')">🗑️</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  return `<div class="table-wrap">
+    <table class="guest-table">
+      <thead><tr>
+        <th class="td-num">${t('colNum')}</th>
+        <th>${t('colName')}</th>
+        <th>${t('colPhone')}</th>
+        <th>${t('colEmail')}</th>
+        <th>${t('colStatus')}</th>
+        <th class="td-action"></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+// ── Actions ────────────────────────────────────────────────────────────────
+function toggleStatus(id){
+  const g = guests.find(g=>g.id===id);
+  if(!g) return;
+  g.status = g.status==='waiting' ? 'invited' : 'waiting';
+  saveGuests(); render();
+}
+
+function openSheet(){
+  editingId = null;
+  document.getElementById('sheetTitle').textContent = t('sheetAdd');
+  document.getElementById('inputName').value = '';
+  document.getElementById('inputPhone').value = '';
+  document.getElementById('inputEmail').value = '';
+  document.getElementById('sheetOverlay').classList.add('on');
+  setTimeout(()=>document.getElementById('inputName').focus(), 320);
+}
+
+function openEdit(id){
+  const g = guests.find(g=>g.id===id);
+  if(!g) return;
+  editingId = id;
+  document.getElementById('sheetTitle').textContent = t('sheetEdit');
+  document.getElementById('inputName').value = g.name;
+  document.getElementById('inputPhone').value = g.phone||'';
+  document.getElementById('inputEmail').value = g.email||'';
+  document.getElementById('sheetOverlay').classList.add('on');
+  setTimeout(()=>document.getElementById('inputName').focus(), 320);
+}
+
+function closeSheet(){
+  document.getElementById('sheetOverlay').classList.remove('on');
+  editingId = null;
+}
+
+function saveGuest(){
+  const name = document.getElementById('inputName').value.trim();
+  if(!name){ alert(t('nameRequired')); document.getElementById('inputName').focus(); return; }
+  const phone = document.getElementById('inputPhone').value.trim();
+  const email = document.getElementById('inputEmail').value.trim();
+
+  if(editingId){
+    const g = guests.find(g=>g.id===editingId);
+    if(g){ g.name=name; g.phone=phone; g.email=email; }
+  } else {
+    guests.push({ id:'g_'+Date.now(), name, phone, email, status:'waiting', createdAt:Date.now() });
+  }
+  saveGuests(); closeSheet(); render();
+}
+
+function openDelete(id){
+  const g = guests.find(g=>g.id===id);
+  if(!g) return;
+  deletingId = id;
+  document.getElementById('delTitle').textContent = t('delTitle');
+  document.getElementById('delName').textContent = g.name;
+  document.getElementById('delOverlay').classList.add('on');
+}
+
+function closeDelete(){
+  document.getElementById('delOverlay').classList.remove('on');
+  deletingId = null;
+}
+
+function confirmDelete(){
+  if(!deletingId) return;
+  guests = guests.filter(g=>g.id!==deletingId);
+  saveGuests(); closeDelete(); render();
+}
+
+// ── Export CSV ─────────────────────────────────────────────────────────────
+function exportCSV(){
+  if(guests.length===0) return;
+  const headers = [t('colNum'), t('colName'), t('colPhone'), t('colEmail'), t('colStatus')];
+  const rows = guests.map((g,i) => [
+    i+1,
+    `"${g.name.replace(/"/g,'""')}"`,
+    g.phone ? `"${g.phone}"` : '',
+    g.email ? `"${g.email}"` : '',
+    g.status==='invited' ? 'Invited' : 'Waiting'
+  ].join(','));
+  const csv = '﻿' + [headers.join(','), ...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='guest-list.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ── CS overlay ─────────────────────────────────────────────────────────────
+function showCS(title, sub){
+  document.getElementById('csTitle').textContent = title;
+  document.getElementById('csSub').textContent = sub;
+  document.getElementById('csOverlay').classList.add('on');
+}
+function closeCS(){ document.getElementById('csOverlay').classList.remove('on'); }
+
+// ── HTML escape ────────────────────────────────────────────────────────────
+function esc(s){
+  const d = document.createElement('div');
+  d.textContent = s||'';
+  return d.innerHTML;
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(function init(){
+  loadGuests();
+
+  lang = localStorage.getItem('cw_lang') || 'th';
+  const savedView = localStorage.getItem('cw_guest_view');
+  currentView = savedView || (window.innerWidth >= 640 ? 'table' : 'card');
+
+  document.getElementById('btnTH').classList.toggle('active', lang==='th');
+  document.getElementById('btnEN').classList.toggle('active', lang==='en');
+  document.getElementById('btnCardView').classList.toggle('active', currentView==='card');
+  document.getElementById('btnTableView').classList.toggle('active', currentView==='table');
+  document.getElementById('wrap').classList.toggle('table-mode', currentView==='table');
+
+  applyLang();
+  render();
+})();
+
+// ── Enter key on sheet inputs ──────────────────────────────────────────────
+document.getElementById('inputName').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('inputPhone').focus(); });
+document.getElementById('inputPhone').addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('inputEmail').focus(); });
+document.getElementById('inputEmail').addEventListener('keydown', e=>{ if(e.key==='Enter') saveGuest(); });
+</script>
+</body>
+</html>
