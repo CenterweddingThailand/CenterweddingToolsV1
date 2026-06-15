@@ -20,13 +20,12 @@
     .wrap { max-width: 430px; margin: 0 auto; min-height: 100vh; background: var(--bg); }
 
     /* ── Top bar ── */
-    .topbar { background: var(--white); padding: 12px 20px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
-    .topbar-logo img { height: 32px; width: auto; display: block; }
-    .topbar-divider { width: 1px; height: 24px; background: var(--border); flex-shrink: 0; }
-    .topbar-title { font-size: 15px; font-weight: 700; flex: 1; color: var(--navy); }
-    .topbar-badge { background: var(--orange-light); color: var(--orange); font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px; }
-    .lang-toggle { display: flex; align-items: center; gap: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
-    .lang-btn { background: var(--white); border: none; font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 700; color: var(--light); cursor: pointer; padding: 4px 10px; transition: all .15s; }
+    .topbar { background: var(--white); padding: 10px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 20; }
+    .topbar-logo img { height: 28px; max-width: 88px; width: auto; display: block; object-fit: contain; }
+    .topbar-divider { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
+    .topbar-title { font-size: 14px; font-weight: 700; flex: 1; color: var(--navy); min-width: 0; }
+    .lang-toggle { display: flex; align-items: center; flex-shrink: 0; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .lang-btn { background: var(--white); border: none; font-family: 'Sarabun', sans-serif; font-size: 12px; font-weight: 700; color: var(--light); cursor: pointer; padding: 5px 11px; transition: all .15s; white-space: nowrap; }
     .lang-btn:first-child { border-right: 1.5px solid var(--border); }
     .lang-btn.active { background: var(--orange); color: #fff; }
 
@@ -167,7 +166,6 @@
       <button class="lang-btn active" id="btnTH" onclick="setLang('th')">TH</button>
       <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
     </div>
-    <div class="topbar-badge">Beta</div>
   </div>
 
   <!-- Input card -->
