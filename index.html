@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>CW Club | Centerwedding</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --pink:#D81B7A;--pink-light:#fde8f3;--pink-dark:#aa1060;
+      --navy:#1C2B3A;--navy2:#2e4057;
+      --text:#1a1a1a;--mid:#6b7280;--light:#9ca3af;
+      --bg:#fdf5f9;--white:#fff;--border:#f0d6e8;
+      --green:#15803d;--green-bg:#dcfce7;
+      --red:#dc2626;--red-bg:#fee2e2;
+      --blue:#2563eb;--blue-bg:#dbeafe;
+      --yellow:#d97706;--yellow-bg:#fef3c7;
+    }
+    body{font-family:'Sarabun',sans-serif;background:var(--bg);color:var(--text);}
+    .wrap{max-width:430px;margin:0 auto;min-height:100vh;background:var(--bg);}
+
+    /* ── Topbar ── */
+    .topbar{background:var(--white);padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:20;}
+    .topbar-logo img{height:28px;max-width:88px;width:auto;display:block;object-fit:contain;}
+    .topbar-divider{width:1px;height:22px;background:var(--border);flex-shrink:0;}
+    .topbar-title{font-size:14px;font-weight:700;flex:1;color:var(--navy);min-width:0;}
+    .lang-toggle{display:flex;align-items:center;flex-shrink:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;}
+    .lang-btn{background:var(--white);border:none;font-family:'Sarabun',sans-serif;font-size:12px;font-weight:700;color:var(--light);cursor:pointer;padding:5px 11px;transition:all .15s;white-space:nowrap;}
+    .lang-btn:first-child{border-right:1.5px solid var(--border);}
+    .lang-btn.active{background:var(--pink);color:#fff;}
+
+    /* ── Setup prompt ── */
+    .setup-prompt{margin:20px 16px;background:var(--white);border-radius:18px;padding:32px 20px;text-align:center;box-shadow:0 2px 12px rgba(216,27,122,.1);border:1.5px dashed var(--border);}
+    .setup-icon{font-size:52px;margin-bottom:14px;}
+    .setup-title{font-size:18px;font-weight:800;color:var(--navy);margin-bottom:8px;}
+    .setup-sub{font-size:13px;color:var(--mid);line-height:1.7;margin-bottom:20px;}
+    .btn-setup{width:100%;padding:13px;background:var(--pink);color:#fff;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+    /* ── Hero card ── */
+    .hero-card{margin:14px 16px 0;background:linear-gradient(145deg,#fde8f3 0%,#fff0f8 50%,var(--white) 100%);border-radius:18px;padding:20px;border:1px solid var(--border);box-shadow:0 2px 12px rgba(216,27,122,.08);position:relative;}
+    .hero-edit{position:absolute;top:14px;right:14px;width:30px;height:30px;border:1.5px solid var(--border);border-radius:8px;background:rgba(255,255,255,.8);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;}
+    .hero-edit:hover{border-color:var(--pink);}
+    .hero-names{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:4px;padding-right:36px;}
+    .hero-date{font-size:12px;color:var(--mid);margin-bottom:16px;}
+    .countdown-box{text-align:center;padding:14px 0 10px;}
+    .countdown-num{font-size:64px;font-weight:800;color:var(--pink);line-height:1;letter-spacing:-2px;}
+    .countdown-unit{font-size:16px;font-weight:600;color:var(--pink-dark);margin-top:2px;}
+    .countdown-label{font-size:12px;color:var(--mid);margin-top:4px;}
+    .countdown-today{font-size:13px;font-weight:700;color:var(--green);padding:8px 0 4px;}
+    .plan-bar-wrap{margin-top:10px;}
+    .plan-bar-label{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);margin-bottom:5px;}
+    .plan-bar{height:7px;background:var(--border);border-radius:999px;overflow:hidden;}
+    .plan-bar-fill{height:100%;background:linear-gradient(90deg,var(--pink),var(--pink-dark));border-radius:999px;transition:width .5s ease;}
+
+    /* ── Dashboard grid ── */
+    .dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 16px 0;}
+    .dash-card{background:var(--white);border-radius:14px;padding:14px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05);cursor:pointer;transition:box-shadow .15s,border-color .15s;display:flex;flex-direction:column;gap:6px;}
+    .dash-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);border-color:var(--pink);}
+    .dc-top{display:flex;align-items:center;justify-content:space-between;}
+    .dc-icon{font-size:20px;}
+    .dc-arrow{font-size:11px;color:var(--light);}
+    .dc-label{font-size:11px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.3px;}
+    .dc-value{font-size:20px;font-weight:800;color:var(--navy);line-height:1.1;}
+    .dc-value.pink{color:var(--pink);}
+    .dc-sub{font-size:11px;color:var(--mid);}
+    .dc-bar{height:4px;background:var(--border);border-radius:999px;overflow:hidden;margin-top:2px;}
+    .dc-bar-fill{height:100%;background:var(--pink);border-radius:999px;}
+    .dc-soon{font-size:11px;font-weight:700;color:var(--light);background:var(--bg);padding:3px 8px;border-radius:999px;display:inline-block;}
+    .dc-empty{font-size:12px;color:var(--light);}
+    .dc-cta{font-size:11px;font-weight:700;color:var(--pink);margin-top:2px;}
+
+    /* ── Urgent tasks ── */
+    .section-card{margin:14px 16px 0;background:var(--white);border-radius:14px;padding:16px;border:1px solid var(--border);box-shadow:0 1px 4px rgba(0,0,0,.05);}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+    .section-title{font-size:13px;font-weight:700;color:var(--navy);}
+    .section-link{font-size:12px;color:var(--pink);font-weight:600;cursor:pointer;}
+    .urgent-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bg);}
+    .urgent-item:last-child{border-bottom:none;padding-bottom:0;}
+    .urgent-dot{width:8px;height:8px;border-radius:50%;background:var(--pink);flex-shrink:0;}
+    .urgent-name{font-size:13px;flex:1;}
+    .urgent-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:all .15s;}
+    .urgent-check.done{background:var(--pink);border-color:var(--pink);}
+    .urgent-check.done::after{content:'✓';color:#fff;font-size:12px;font-weight:700;}
+    .all-done{text-align:center;padding:16px;font-size:13px;color:var(--green);font-weight:600;}
+
+    /* ── Quick actions ── */
+    .quick-row{display:flex;gap:10px;margin:14px 16px 0;}
+    .btn-quick{flex:1;padding:12px 8px;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
+    .btn-quick.outline{border:1.5px solid var(--pink);background:var(--white);color:var(--pink);}
+    .btn-quick.outline:hover{background:var(--pink-light);}
+    .btn-quick.fill{border:none;background:var(--pink);color:#fff;}
+    .btn-quick.fill:active{opacity:.85;}
+
+    /* ── Setup / Edit sheet ── */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:60;align-items:flex-end;justify-content:center;}
+    .overlay.on{display:flex;}
+    .add-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:430px;animation:up .28s ease;}
+    .sheet-handle{width:36px;height:4px;background:var(--border);border-radius:999px;margin:0 auto 18px;}
+    .sheet-title{font-size:17px;font-weight:800;color:var(--navy);margin-bottom:18px;}
+    .field-group{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+    .field-label{font-size:12px;font-weight:600;color:var(--mid);margin-bottom:4px;}
+    .field-input{width:100%;padding:11px 13px;border:1.5px solid var(--border);border-radius:11px;font-family:'Sarabun',sans-serif;font-size:14px;color:var(--text);background:var(--bg);outline:none;transition:border-color .2s;}
+    .field-input:focus{border-color:var(--pink);background:var(--white);}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+    .sheet-btns{display:flex;gap:10px;}
+    .btn-cancel{flex:1;padding:12px;border:1.5px solid var(--border);border-radius:12px;background:var(--bg);font-family:'Sarabun',sans-serif;font-size:14px;font-weight:600;color:var(--mid);cursor:pointer;}
+    .btn-save{flex:2;padding:12px;border:none;border-radius:12px;background:var(--pink);font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;color:#fff;cursor:pointer;}
+    .btn-save:hover{background:var(--pink-dark);}
+
+    /* ── CS overlay ── */
+    .cs-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;align-items:flex-end;justify-content:center;}
+    .cs-overlay.on{display:flex;}
+    .cs-sheet{background:var(--white);border-radius:24px 24px 0 0;padding:32px 24px 44px;width:100%;max-width:430px;text-align:center;animation:up .3s ease;}
+    .cs-icon{font-size:42px;margin-bottom:12px;}
+    .cs-title{font-size:20px;font-weight:800;color:var(--navy);margin-bottom:6px;}
+    .cs-sub{font-size:14px;color:var(--mid);line-height:1.6;margin-bottom:24px;}
+    .cs-pill{display:inline-block;background:var(--pink-light);color:var(--pink);font-size:13px;font-weight:700;padding:6px 20px;border-radius:999px;margin-bottom:20px;}
+    .cs-close{width:100%;padding:13px;background:var(--pink);color:#fff;border:none;border-radius:12px;font-family:'Sarabun',sans-serif;font-size:15px;font-weight:700;cursor:pointer;}
+
+    /* ── Bottom nav ── */
+    .bottomnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:var(--white);border-top:1px solid var(--border);display:flex;justify-content:space-around;padding:8px 0 16px;z-index:20;}
+    .nav-item{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:10px;color:var(--light);cursor:pointer;flex:1;padding:4px 0;}
+    .nav-item.on{color:var(--pink);}
+    .ni{font-size:20px;}
+    .spacer{height:90px;}
+
+    @keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-logo">
+      <img src="./logo-icon.png" alt="CW Club"/>
+    </div>
+    <div class="topbar-divider"></div>
+    <div class="topbar-title" id="pageTitle">CW Club</div>
+    <div class="lang-toggle">
+      <button class="lang-btn" id="btnTH" onclick="setLang('th')">TH</button>
+      <button class="lang-btn" id="btnEN" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <!-- Hero / Setup -->
+  <div id="mainContent"></div>
+
+  <!-- Dashboard grid -->
+  <div class="dash-grid" id="dashGrid" style="display:none"></div>
+
+  <!-- Urgent tasks -->
+  <div class="section-card" id="urgentCard" style="display:none">
+    <div class="section-head">
+      <div class="section-title" id="urgentTitle">งานสำคัญที่ยังไม่เสร็จ</div>
+      <div class="section-link" onclick="location.href='checklist.html'" id="urgentLink">ดูทั้งหมด →</div>
+    </div>
+    <div id="urgentList"></div>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="quick-row" id="quickRow" style="display:none">
+    <button class="btn-quick outline" id="quickBudget" onclick="location.href='budget-advisor.html'">💰 คำนวณ Budget</button>
+    <button class="btn-quick fill" id="quickGuest" onclick="location.href='guest-list.html'">👥 เพิ่มแขก</button>
+  </div>
+
+  <div class="spacer"></div>
+</div>
+
+<!-- Bottom nav -->
+<div class="bottomnav">
+  <div class="nav-item on"><div class="ni">🏠</div><span id="navHome">Home</span></div>
+  <div class="nav-item" onclick="location.href='guest-list.html'"><div class="ni">👥</div><span id="navGuests">Guests</span></div>
+  <div class="nav-item" onclick="location.href='checklist.html'"><div class="ni">✅</div><span id="navChecklist">Checklist</span></div>
+  <div class="nav-item" onclick="location.href='budget-advisor.html'"><div class="ni">💰</div><span id="navBudget">Budget</span></div>
+  <div class="nav-item" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')"><div class="ni">📍</div><span id="navVenues">Venues</span></div>
+</div>
+
+<!-- Setup / Edit sheet -->
+<div class="overlay" id="sheetOverlay" onclick="closeSheet()">
+  <div class="add-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="sheetTitle">ตั้งค่าข้อมูลงานแต่ง</div>
+    <div class="field-group">
+      <div class="field-row">
+        <div>
+          <div class="field-label" id="lblName1">ชื่อเจ้าบ่าว</div>
+          <input class="field-input" type="text" id="inputName1" placeholder="สมชาย"/>
+        </div>
+        <div>
+          <div class="field-label" id="lblName2">ชื่อเจ้าสาว</div>
+          <input class="field-input" type="text" id="inputName2" placeholder="สมหญิง"/>
+        </div>
+      </div>
+      <div>
+        <div class="field-label" id="lblDate">วันงาน</div>
+        <input class="field-input" type="date" id="inputDate"/>
+      </div>
+    </div>
+    <div class="sheet-btns">
+      <button class="btn-cancel" id="btnCancel" onclick="closeSheet()">ยกเลิก</button>
+      <button class="btn-save" id="btnSave" onclick="saveWedding()">บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<!-- CS overlay -->
+<div class="cs-overlay" id="csOverlay" onclick="closeCS()">
+  <div class="cs-sheet" onclick="event.stopPropagation()">
+    <div class="cs-icon">🔮</div>
+    <div class="cs-title" id="csTitle">Coming Soon</div>
+    <div class="cs-sub" id="csSub"></div>
+    <div class="cs-pill">เร็วๆ นี้</div>
+    <button class="cs-close" onclick="closeCS()">ปิด</button>
+  </div>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let lang = 'th';
+let wedding = null;
+
+// ── High-priority tasks (synced with checklist.html) ──────────────────────
+const HIGH_TASKS = {
+  th: [
+    { id:'v1', cat:'🏛️', name:'กำหนดวันและเวลาของงาน' },
+    { id:'v2', cat:'🏛️', name:'สำรวจสถานที่อย่างน้อย 3 แห่ง' },
+    { id:'v3', cat:'🏛️', name:'ยืนยัน venue package และเซ็นสัญญา' },
+    { id:'f1', cat:'🍽️', name:'เลือกเมนูอาหารและเครื่องดื่ม' },
+    { id:'f2', cat:'🍽️', name:'นัด food tasting กับ venue' },
+    { id:'f3', cat:'🍽️', name:'ยืนยันจำนวนแขกกับทีมครัว' },
+    { id:'d1', cat:'🌸', name:'เลือกธีมและชุดสีของงาน' },
+    { id:'d2', cat:'🌸', name:'เลือกดอกไม้และการตกแต่ง' },
+    { id:'p1', cat:'📷', name:'เลือกและจองช่างภาพ' },
+    { id:'p2', cat:'📷', name:'เลือกและจองช่างวิดีโอ' },
+    { id:'e1', cat:'🎵', name:'เลือกวงดนตรีหรือ DJ' },
+    { id:'e2', cat:'🎵', name:'เลือกพิธีกร (MC)' },
+    { id:'e3', cat:'🎵', name:'จองอุปกรณ์เสียงและแสง' },
+    { id:'t1', cat:'🚗', name:'จัดรถเจ้าบ่าวเจ้าสาว' },
+    { id:'dr1', cat:'👗', name:'เลือกและจองชุดเจ้าสาว' },
+    { id:'dr2', cat:'👗', name:'เลือกและจองสูทเจ้าบ่าว' },
+    { id:'dr3', cat:'👗', name:'จองช่างแต่งหน้าและทำผม' },
+    { id:'i1', cat:'💌', name:'ออกแบบการ์ดเชิญ' },
+    { id:'i2', cat:'💌', name:'ส่งการ์ดเชิญล่วงหน้าอย่างน้อย 4 สัปดาห์' },
+  ],
+  en: [
+    { id:'v1', cat:'🏛️', name:'Set event date and time' },
+    { id:'v2', cat:'🏛️', name:'Visit at least 3 venues' },
+    { id:'v3', cat:'🏛️', name:'Confirm venue package and sign contract' },
+    { id:'f1', cat:'🍽️', name:'Choose food and beverage menus' },
+    { id:'f2', cat:'🍽️', name:'Schedule food tasting with venue' },
+    { id:'f3', cat:'🍽️', name:'Confirm guest count with kitchen team' },
+    { id:'d1', cat:'🌸', name:'Choose theme and colour scheme' },
+    { id:'d2', cat:'🌸', name:'Select flowers and decorations' },
+    { id:'p1', cat:'📷', name:'Choose and book photographer' },
+    { id:'p2', cat:'📷', name:'Choose and book videographer' },
+    { id:'e1', cat:'🎵', name:'Choose live band or DJ' },
+    { id:'e2', cat:'🎵', name:'Choose MC / Emcee' },
+    { id:'e3', cat:'🎵', name:'Book sound and lighting equipment' },
+    { id:'t1', cat:'🚗', name:'Arrange car for bride and groom' },
+    { id:'dr1', cat:'👗', name:'Choose and book bridal gown' },
+    { id:'dr2', cat:'👗', name:'Choose and book groom\'s suit' },
+    { id:'dr3', cat:'👗', name:'Book makeup artist and hairstylist' },
+    { id:'i1', cat:'💌', name:'Design invitation card' },
+    { id:'i2', cat:'💌', name:'Send invitations at least 4 weeks in advance' },
+  ]
+};
+
+const TOTAL_TASKS = 35;
+
+// ── Translations ───────────────────────────────────────────────────────────
+const T = {
+  th: {
+    pageTitle:'CW Club',
+    setupTitle:'เริ่มวางแผนงานแต่งของคุณ',
+    setupSub:'ใส่ชื่อและวันงาน เพื่อเริ่มนับถอยหลังและติดตามความคืบหน้า',
+    setupBtn:'ตั้งค่าเลย',
+    daysLeft:'วันที่เหลือ',
+    daysToGo:'จนถึงวันงาน',
+    today:'วันงานมาถึงแล้ว! 🎉',
+    passed:'ผ่านวันงานไปแล้ว',
+    planProgress:'ความคืบหน้าการวางแผน',
+    lblBudget:'Budget', lblChecklist:'Checklist', lblGuests:'Guests', lblVenues:'Venues',
+    budgetEmpty:'ยังไม่ได้คำนวณ', budgetCta:'คำนวณเลย →',
+    checklistEmpty:'0 / 0', guestsEmpty:'0 คน',
+    comingSoon:'เร็วๆ นี้',
+    urgentTitle:'งานสำคัญที่ยังไม่เสร็จ',
+    urgentLink:'ดูทั้งหมด →',
+    allDone:'เยี่ยมมาก! ทุกงานสำคัญเสร็จแล้ว 🎉',
+    quickBudget:'💰 คำนวณ Budget',
+    quickGuest:'👥 เพิ่มแขก',
+    sheetTitle:'ตั้งค่าข้อมูลงานแต่ง',
+    sheetEditTitle:'แก้ไขข้อมูลงานแต่ง',
+    lblName1:'ชื่อเจ้าบ่าว', lblName2:'ชื่อเจ้าสาว', lblDate:'วันงาน',
+    save:'บันทึก', cancel:'ยกเลิก',
+    nameRequired:'กรุณาใส่ชื่ออย่างน้อยหนึ่งชื่อ',
+    dateRequired:'กรุณาเลือกวันงาน',
+    invited:'ส่งการ์ดแล้ว', waiting:'รอการ์ด',
+    tasks:'งาน',
+    navHome:'Home', navGuests:'Guests', navChecklist:'Checklist', navBudget:'Budget', navVenues:'Venues',
+  },
+  en: {
+    pageTitle:'CW Club',
+    setupTitle:'Start Planning Your Wedding',
+    setupSub:'Enter names and wedding date to start the countdown and track your progress.',
+    setupBtn:'Get Started',
+    daysLeft:'Days Left',
+    daysToGo:'Until the big day',
+    today:'Today is the big day! 🎉',
+    passed:'Days since wedding',
+    planProgress:'Planning Progress',
+    lblBudget:'Budget', lblChecklist:'Checklist', lblGuests:'Guests', lblVenues:'Venues',
+    budgetEmpty:'Not calculated', budgetCta:'Calculate now →',
+    checklistEmpty:'0 / 0', guestsEmpty:'0 guests',
+    comingSoon:'Coming Soon',
+    urgentTitle:'Urgent Tasks',
+    urgentLink:'View all →',
+    allDone:'Amazing! All urgent tasks are done 🎉',
+    quickBudget:'💰 Budget Estimate',
+    quickGuest:'👥 Add Guest',
+    sheetTitle:'Wedding Setup',
+    sheetEditTitle:'Edit Wedding Info',
+    lblName1:'Groom\'s Name', lblName2:'Bride\'s Name', lblDate:'Wedding Date',
+    save:'Save', cancel:'Cancel',
+    nameRequired:'Please enter at least one name',
+    dateRequired:'Please select a wedding date',
+    invited:'Invited', waiting:'Waiting',
+    tasks:'tasks',
+    navHome:'Home', navGuests:'Guests', navChecklist:'Checklist', navBudget:'Budget', navVenues:'Venues',
+  }
+};
+function t(k){ return T[lang][k] || k; }
+
+// ── Storage ────────────────────────────────────────────────────────────────
+function loadWedding(){ try{ wedding = JSON.parse(localStorage.getItem('cw_wedding')); }catch(e){ wedding = null; } }
+function saveWeddingData(d){ localStorage.setItem('cw_wedding', JSON.stringify(d)); }
+function getChecked(){ try{ return JSON.parse(localStorage.getItem('cw_checklist')||'{}'); }catch(e){ return {}; } }
+function getGuests(){ try{ return JSON.parse(localStorage.getItem('cw_guests')||'[]'); }catch(e){ return []; } }
+function getBudget(){ try{ return JSON.parse(localStorage.getItem('cw_budget_data')); }catch(e){ return null; } }
+
+// ── Lang ───────────────────────────────────────────────────────────────────
+function setLang(l){
+  lang = l;
+  localStorage.setItem('cw_lang', l);
+  document.getElementById('btnTH').classList.toggle('active', l==='th');
+  document.getElementById('btnEN').classList.toggle('active', l==='en');
+  render();
+}
+
+// ── Date helpers ───────────────────────────────────────────────────────────
+function daysUntil(dateStr){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const target = new Date(dateStr); target.setHours(0,0,0,0);
+  return Math.round((target - today) / 86400000);
+}
+
+function fmtDate(dateStr){
+  const d = new Date(dateStr);
+  if(lang === 'th'){
+    return d.toLocaleDateString('th-TH',{day:'numeric',month:'long',year:'numeric'});
+  }
+  return d.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+
+function fmtBaht(n){
+  if(n >= 1000000) return '฿' + (n/1000000).toFixed(1) + 'M';
+  if(n >= 1000) return '฿' + (n/1000).toFixed(0) + 'K';
+  return '฿' + n;
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function render(){
+  applyStaticLang();
+  if(!wedding || !wedding.date){
+    renderSetup();
+  } else {
+    renderHero();
+    renderDash();
+    renderUrgent();
+  }
+}
+
+function applyStaticLang(){
+  document.getElementById('pageTitle').textContent = t('pageTitle');
+  document.getElementById('btnCancel').textContent = t('cancel');
+  document.getElementById('btnSave').textContent = t('save');
+  document.getElementById('lblName1').textContent = t('lblName1');
+  document.getElementById('lblName2').textContent = t('lblName2');
+  document.getElementById('lblDate').textContent = t('lblDate');
+  document.getElementById('navHome').textContent = t('navHome');
+  document.getElementById('navGuests').textContent = t('navGuests');
+  document.getElementById('navChecklist').textContent = t('navChecklist');
+  document.getElementById('navBudget').textContent = t('navBudget');
+  document.getElementById('navVenues').textContent = t('navVenues');
+  document.getElementById('urgentTitle').textContent = t('urgentTitle');
+  document.getElementById('urgentLink').textContent = t('urgentLink');
+  document.getElementById('quickBudget').textContent = t('quickBudget');
+  document.getElementById('quickGuest').textContent = t('quickGuest');
+}
+
+function renderSetup(){
+  document.getElementById('mainContent').innerHTML = `
+    <div class="setup-prompt">
+      <div class="setup-icon">💍</div>
+      <div class="setup-title">${t('setupTitle')}</div>
+      <div class="setup-sub">${t('setupSub')}</div>
+      <button class="btn-setup" onclick="openSheet(false)">${t('setupBtn')}</button>
+    </div>`;
+  document.getElementById('dashGrid').style.display = 'none';
+  document.getElementById('urgentCard').style.display = 'none';
+  document.getElementById('quickRow').style.display = 'none';
+}
+
+function renderHero(){
+  const days = daysUntil(wedding.date);
+  const names = [wedding.name1, wedding.name2].filter(Boolean).join(' & ') || 'CW Club';
+
+  // Checklist progress for plan bar
+  const checked = getChecked();
+  const doneCount = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((doneCount / TOTAL_TASKS) * 100);
+
+  let countdownHTML = '';
+  if(days > 0){
+    countdownHTML = `
+      <div class="countdown-num">${days}</div>
+      <div class="countdown-unit">${t('daysLeft')}</div>
+      <div class="countdown-label">${t('daysToGo')}</div>`;
+  } else if(days === 0){
+    countdownHTML = `<div class="countdown-today">${t('today')}</div>`;
+  } else {
+    countdownHTML = `
+      <div class="countdown-num">${Math.abs(days)}</div>
+      <div class="countdown-unit">${t('passed')}</div>`;
+  }
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="hero-card">
+      <button class="hero-edit" onclick="openSheet(true)">✏️</button>
+      <div class="hero-names">${esc(names)}</div>
+      <div class="hero-date">📅 ${fmtDate(wedding.date)}</div>
+      <div class="countdown-box">${countdownHTML}</div>
+      <div class="plan-bar-wrap">
+        <div class="plan-bar-label">
+          <span>${t('planProgress')}</span>
+          <span>${doneCount} / ${TOTAL_TASKS} ${t('tasks')}</span>
+        </div>
+        <div class="plan-bar"><div class="plan-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('dashGrid').style.display = 'grid';
+  document.getElementById('urgentCard').style.display = 'block';
+  document.getElementById('quickRow').style.display = 'flex';
+}
+
+function renderDash(){
+  const checked = getChecked();
+  const doneCount = Object.values(checked).filter(Boolean).length;
+  const pct = Math.round((doneCount / TOTAL_TASKS) * 100);
+
+  const guests = getGuests();
+  const invited = guests.filter(g=>g.status==='invited').length;
+  const waiting = guests.filter(g=>g.status==='waiting').length;
+
+  const budget = getBudget();
+
+  const budgetHTML = budget
+    ? `<div class="dc-value pink">${fmtBaht(budget.budget)}</div>
+       <div class="dc-sub">${budget.guests} ${lang==='th'?'คน':'pax'} · ${budget.tier}</div>`
+    : `<div class="dc-empty">${t('budgetEmpty')}</div>
+       <div class="dc-cta">${t('budgetCta')}</div>`;
+
+  document.getElementById('dashGrid').innerHTML = `
+    <div class="dash-card" onclick="location.href='budget-advisor.html'">
+      <div class="dc-top"><div class="dc-icon">💰</div><div class="dc-arrow">›</div></div>
+      <div class="dc-label">${t('lblBudget')}</div>
+      ${budgetHTML}
+    </div>
+    <div class="dash-card" onclick="location.href='checklist.html'">
+      <div class="dc-top"><div class="dc-icon">✅</div><div class="dc-arrow">›</div></div>
+      <div class="dc-label">${t('lblChecklist')}</div>
+      <div class="dc-value">${doneCount}<span style="font-size:13px;font-weight:500;color:var(--mid)"> / ${TOTAL_TASKS}</span></div>
+      <div class="dc-bar"><div class="dc-bar-fill" style="width:${pct}%"></div></div>
+      <div class="dc-sub">${pct}%</div>
+    </div>
+    <div class="dash-card" onclick="location.href='guest-list.html'">
+      <div class="dc-top"><div class="dc-icon">👥</div><div class="dc-arrow">›</div></div>
+      <div class="dc-label">${t('lblGuests')}</div>
+      <div class="dc-value">${guests.length}<span style="font-size:13px;font-weight:500;color:var(--mid)"> ${lang==='th'?'คน':'pax'}</span></div>
+      <div class="dc-sub">✉️ ${invited} ${t('invited')} · ⏳ ${waiting} ${t('waiting')}</div>
+    </div>
+    <div class="dash-card" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')">
+      <div class="dc-top"><div class="dc-icon">📍</div></div>
+      <div class="dc-label">${t('lblVenues')}</div>
+      <div class="dc-soon">${t('comingSoon')}</div>
+    </div>`;
+}
+
+function renderUrgent(){
+  const checked = getChecked();
+  const tasks = HIGH_TASKS[lang];
+  const unchecked = tasks.filter(tk => !checked[tk.id]);
+
+  const listEl = document.getElementById('urgentList');
+  if(unchecked.length === 0){
+    listEl.innerHTML = `<div class="all-done">${t('allDone')}</div>`;
+    return;
+  }
+
+  listEl.innerHTML = unchecked.slice(0,4).map(tk => `
+    <div class="urgent-item">
+      <div class="urgent-dot"></div>
+      <div class="urgent-name">${esc(tk.cat + ' ' + tk.name)}</div>
+      <div class="urgent-check ${checked[tk.id]?'done':''}" onclick="toggleTask('${tk.id}', this)"></div>
+    </div>`).join('');
+}
+
+// ── Toggle task from home page ─────────────────────────────────────────────
+function toggleTask(id, el){
+  let checked = getChecked();
+  checked[id] = !checked[id];
+  localStorage.setItem('cw_checklist', JSON.stringify(checked));
+  el.classList.toggle('done', !!checked[id]);
+  setTimeout(()=>{ renderUrgent(); renderHero(); renderDash(); }, 300);
+}
+
+// ── Sheet ──────────────────────────────────────────────────────────────────
+function openSheet(isEdit){
+  document.getElementById('sheetTitle').textContent = isEdit ? t('sheetEditTitle') : t('sheetTitle');
+  document.getElementById('inputName1').value = wedding?.name1 || '';
+  document.getElementById('inputName2').value = wedding?.name2 || '';
+  document.getElementById('inputDate').value = wedding?.date || '';
+  document.getElementById('sheetOverlay').classList.add('on');
+  setTimeout(()=>document.getElementById('inputName1').focus(), 300);
+}
+
+function closeSheet(){
+  document.getElementById('sheetOverlay').classList.remove('on');
+}
+
+function saveWedding(){
+  const name1 = document.getElementById('inputName1').value.trim();
+  const name2 = document.getElementById('inputName2').value.trim();
+  const date = document.getElementById('inputDate').value;
+  if(!name1 && !name2){ alert(t('nameRequired')); return; }
+  if(!date){ alert(t('dateRequired')); return; }
+  wedding = { name1, name2, date };
+  saveWeddingData(wedding);
+  closeSheet();
+  render();
+}
+
+// ── CS overlay ─────────────────────────────────────────────────────────────
+function showCS(title, sub){
+  document.getElementById('csTitle').textContent = title;
+  document.getElementById('csSub').textContent = sub;
+  document.getElementById('csOverlay').classList.add('on');
+}
+function closeCS(){ document.getElementById('csOverlay').classList.remove('on'); }
+
+// ── HTML escape ────────────────────────────────────────────────────────────
+function esc(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+// ── Init ───────────────────────────────────────────────────────────────────
+(function init(){
+  lang = localStorage.getItem('cw_lang') || 'th';
+  document.getElementById('btnTH').classList.toggle('active', lang==='th');
+  document.getElementById('btnEN').classList.toggle('active', lang==='en');
+  loadWedding();
+  render();
+})();
+</script>
+</body>
+</html>

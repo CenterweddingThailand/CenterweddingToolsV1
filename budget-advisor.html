@@ -525,6 +525,7 @@ function calculate() {
   const hi = Math.round(base * rHi / 1000) * 1000;
 
   calcData = { loc, type, guests, tier, budget: mid };
+  localStorage.setItem('cw_budget_data', JSON.stringify(calcData));
 
   // Track calculation (pixel-style GET, no CORS issues)
   trackEvent('calc', calcData);
