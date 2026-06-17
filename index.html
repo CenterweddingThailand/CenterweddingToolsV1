@@ -175,7 +175,7 @@
   <div class="nav-item" onclick="location.href='guest-list.html'"><div class="ni">👥</div><span id="navGuests">Guests</span></div>
   <div class="nav-item" onclick="location.href='checklist.html'"><div class="ni">✅</div><span id="navChecklist">Checklist</span></div>
   <div class="nav-item" onclick="location.href='budget-advisor.html'"><div class="ni">💰</div><span id="navBudget">Budget</span></div>
-  <div class="nav-item" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')"><div class="ni">📍</div><span id="navVenues">Venues</span></div>
+  <div class="nav-item" onclick="location.href='https://www.centerwedding.com/bangkok/venues/'"><div class="ni">📍</div><span id="navVenues">Venues</span></div>
 </div>
 
 <!-- Setup / Edit sheet -->
@@ -492,7 +492,7 @@ function renderDash(){
       <div class="dc-value">${guests.length}<span style="font-size:13px;font-weight:500;color:var(--mid)"> ${lang==='th'?'คน':'pax'}</span></div>
       <div class="dc-sub">✉️ ${invited} ${t('invited')} · ⏳ ${waiting} ${t('waiting')}</div>
     </div>
-    <div class="dash-card" onclick="showCS('Venues','ค้นหาและเปรียบเทียบสถานที่จัดงานกว่า 100 แห่ง')">
+    <div class="dash-card" onclick="location.href='https://www.centerwedding.com/bangkok/venues/'">
       <div class="dc-top"><div class="dc-icon">📍</div></div>
       <div class="dc-label">${t('lblVenues')}</div>
       <div class="dc-soon">${t('comingSoon')}</div>
