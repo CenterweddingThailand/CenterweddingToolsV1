@@ -457,12 +457,14 @@ const LIFF_ID   = 'YOUR_LIFF_ID';         // วาง LIFF ID จาก LINE De
 // Source: Centerwedding vendor database + market research
 // ─────────────────────────────────────────────
 const BASE = {
-  wedding:    { budget: 1450, standard: 4500, premium: 7500, luxury: 13000 }, // แต่งทั้งวัน เช้า+เย็น
+  // ราคาต่อคน (บาท) ประมาณการรวม venue+อาหาร+ตกแตง+entertainment พื้นฐาน ปี 2025-2026
+  // อ้างอิงแพ็คเกจจริงจาก Centara Grand Phuket 2024, Anantara CM 2019, Marriott BKK 2020, JW Marriott Phuket 2021
+  wedding:    { budget: 1450, standard: 4000, premium: 7000, luxury: 12000 }, // แต่งทั้งวัน พิธี+งานเลี้ยง
   weddingam:  { budget:  800, standard: 2500, premium: 4000, luxury:  7000 }, // งานเช้า
   weddingpm:  { budget: 1000, standard: 3000, premium: 5000, luxury:  9000 }, // งานเย็น
-  dinner:     { budget:  450, standard: 1500, premium: 2500, luxury:  4500 }, // intimate dinner
-  garden:     { budget:  650, standard: 2000, premium: 3200, luxury:  5500 }, // สวน
-  beach:      { budget:  700, standard: 2200, premium: 3500, luxury:  6000 }, // ริมทะเล
+  dinner:     { budget:  500, standard: 1800, premium: 3000, luxury:  5500 }, // งานเลี้ยงอาหารค่ำ (ไม่รวมพิธี)
+  garden:     { budget:  650, standard: 2200, premium: 3500, luxury:  6000 }, // สวน outdoor
+  beach:      { budget:  800, standard: 3000, premium: 4500, luxury:  8000 }, // ริมทะเล (รวม venue+beach surcharge)
   engagement: { budget:  600, standard: 1800, premium: 2800, luxury:  4800 }, // งานหมั้น
 };
 const LOC_MULTI  = { bangkok:1.00, pattaya:0.90, chiangmai:0.82, phuket:1.12, khonkaen:0.75, hatyai:0.78 };
