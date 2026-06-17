@@ -212,9 +212,10 @@
         <label data-i18n="labelTier">ระดับงาน</label>
         <div class="sel-wrap">
           <select id="tierSelect">
-            <option value="standard">Standard</option>
-            <option value="premium" selected>Premium</option>
-            <option value="luxury">Luxury</option>
+            <option value="budget"   data-i18n-opt="tierBudget">ประหยัด</option>
+            <option value="standard" data-i18n-opt="tierStandard">มาตรฐาน</option>
+            <option value="premium"  data-i18n-opt="tierPremium" selected>พรีเมียม</option>
+            <option value="luxury"   data-i18n-opt="tierLuxury">ลักชูรี</option>
           </select>
         </div>
       </div>
@@ -350,6 +351,7 @@ const T = {
     locPhuket:'ภูเก็ต', locKhonkaen:'ขอนแก่น', locHatyai:'หาดใหญ่',
     typeWedding:'งานแต่งงาน', typeWeddingAM:'งานแต่งงานเช้า', typeWeddingPM:'งานแต่งงานเย็น',
     typeDinner:'ดินเนอร์', typeGarden:'งานแต่งงานในสวน', typeBeach:'งานแต่งริมทะเล', typeEngagement:'งานหมั้น',
+    tierBudget:'ประหยัด', tierStandard:'มาตรฐาน', tierPremium:'พรีเมียม', tierLuxury:'ลักชูรี',
     modalTitle:'ขอใบเสนอราคา',
     modalSub:'ทีม Centerwedding จะติดต่อกลับภายใน 1 วันทำการ',
     labelName:'ชื่อ-นามสกุล *', labelPhone:'เบอร์โทรศัพท์ *', labelLine:'LINE ID (ถ้ามี)',
@@ -372,6 +374,7 @@ const T = {
     locPhuket:'Phuket', locKhonkaen:'Khon Kaen', locHatyai:'Hat Yai',
     typeWedding:'Full Day Wedding', typeWeddingAM:'Morning Wedding', typeWeddingPM:'Evening Wedding',
     typeDinner:'Dinner Reception', typeGarden:'Garden Wedding', typeBeach:'Beach Wedding', typeEngagement:'Engagement Party',
+    tierBudget:'Budget', tierStandard:'Standard', tierPremium:'Premium', tierLuxury:'Luxury',
     modalTitle:'Request Quotation',
     modalSub:'Our team will contact you within 1 business day.',
     labelName:'Full Name *', labelPhone:'Phone Number *', labelLine:'LINE ID (optional)',
@@ -454,18 +457,18 @@ const LIFF_ID   = 'YOUR_LIFF_ID';         // วาง LIFF ID จาก LINE De
 // Source: Centerwedding vendor database + market research
 // ─────────────────────────────────────────────
 const BASE = {
-  wedding:    { standard: 4500, premium: 7500, luxury: 13000 }, // แต่งทั้งวัน เช้า+เย็น
-  weddingam:  { standard: 2500, premium: 4000, luxury:  7000 }, // งานเช้า
-  weddingpm:  { standard: 3000, premium: 5000, luxury:  9000 }, // งานเย็น (มากกว่าเช้า)
-  dinner:     { standard: 1500, premium: 2500, luxury:  4500 }, // intimate dinner
-  garden:     { standard: 2000, premium: 3200, luxury:  5500 }, // สวน
-  beach:      { standard: 2200, premium: 3500, luxury:  6000 }, // ริมทะเล
-  engagement: { standard: 1800, premium: 2800, luxury:  4800 }, // งานหมั้น
+  wedding:    { budget: 2500, standard: 4500, premium: 7500, luxury: 13000 }, // แต่งทั้งวัน เช้า+เย็น
+  weddingam:  { budget: 1400, standard: 2500, premium: 4000, luxury:  7000 }, // งานเช้า
+  weddingpm:  { budget: 1700, standard: 3000, premium: 5000, luxury:  9000 }, // งานเย็น (มากกว่าเช้า)
+  dinner:     { budget:  800, standard: 1500, premium: 2500, luxury:  4500 }, // intimate dinner
+  garden:     { budget: 1100, standard: 2000, premium: 3200, luxury:  5500 }, // สวน
+  beach:      { budget: 1200, standard: 2200, premium: 3500, luxury:  6000 }, // ริมทะเล
+  engagement: { budget: 1000, standard: 1800, premium: 2800, luxury:  4800 }, // งานหมั้น
 };
 const LOC_MULTI  = { bangkok:1.00, pattaya:0.90, chiangmai:0.82, phuket:1.12, khonkaen:0.75, hatyai:0.78 };
 const LOC_KEY    = { bangkok:'locBangkok', pattaya:'locPattaya', chiangmai:'locChiangmai', phuket:'locPhuket', khonkaen:'locKhonkaen', hatyai:'locHatyai' };
-const TIER_MULTI = { standard:1.0, premium:1.0, luxury:1.0 };
-const TIER_RANGE = { standard:[0.85,1.15], premium:[0.88,1.18], luxury:[0.85,1.20] };
+const TIER_MULTI = { budget:1.0, standard:1.0, premium:1.0, luxury:1.0 };
+const TIER_RANGE = { budget:[0.80,1.15], standard:[0.85,1.15], premium:[0.88,1.18], luxury:[0.85,1.20] };
 
 const SPLITS = {
   wedding:    [['Venue & F&B','#1C2B3A',38],['Decoration','#4a6fa5',15],['Photo & Video','#D81B7A',12],['splitDress','#e8a87c',10],['splitCeremony','#c9a23a',10],['Music & MC','#9c6fbd',8],['Other','#d1d5db',7]],
